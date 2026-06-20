@@ -1,14 +1,3 @@
-Edited Dockerfile
-Viewed Dockerfile:24-38
-Ran command: `docker compose down`
-Ran command: `docker compose up --build -d`
-
-Fantastic! The build succeeded, and both containers are up and running together.
-
-Here is the "big picture" of how everything is connected, and how you are able to load these pages in your browser even though they are running inside isolated containers:
-
----
-
 ### 1. The Core Setup: Host vs. Containers
 Your physical computer (MacBook) is the **Host**.
 The two services are running inside their own **Containers** (which act like tiny, isolated virtual computers).
@@ -38,14 +27,3 @@ Inside the Docker environment, they don't use `localhost`. They live in the priv
 * This internal connection is **completely isolated** from the outside world.
 
 ---
-
-### Let's verify!
-Since both containers are running, let's open your browser on your Mac and test the endpoints:
-
-1. Visit **`http://localhost:8000/health/liveness`** (Checks if FastAPI is alive).
-   * *Expected output*: `{"status":"ok","service":"api-service"}`
-2. Visit **`http://localhost:8000/health/readiness`** (Tests if FastAPI can successfully connect to Qdrant internally).
-   * *Expected output*: `{"status":"ready","database":"connected"}`
-3. Visit **`http://localhost:8000/docs`** (Loads the Interactive API documentation).
-
-Let me know what you get for the readiness check!
