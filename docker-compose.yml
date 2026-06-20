@@ -35,4 +35,3 @@ networks:
 
 volumes:
   qdrant_data:
-  

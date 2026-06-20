@@ -14,3 +14,31 @@ members = [
     "services/indexer-service",
     "services/evaluation-service",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+    "pyright>=1.1.350",
+    "pytest>=8.0.0",
+    "pre-commit>=3.7.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort (import sorting)
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+]
+ignore = []
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["shared"]

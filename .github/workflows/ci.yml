@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Sync dependencies
+        run: uv sync --all-packages
+
+      - name: Ruff Check
+        run: uv run ruff check
+
+      - name: Ruff Format Check
+        run: uv run ruff format --check
+
+      - name: Pyright Type Check
+        run: uv run pyright
+
+      - name: Run Tests
+        run: uv run pytest
