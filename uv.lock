@@ -1,0 +1,55 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[manifest]
+members = [
+    "api-service",
+    "evaluation-service",
+    "indexer-service",
+    "shared-lib",
+    "week3-rag-aws",
+]
+
+[[package]]
+name = "api-service"
+version = "0.1.0"
+source = { editable = "services/api-service" }
+dependencies = [
+    { name = "shared-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "shared-lib", editable = "shared-lib" }]
+
+[[package]]
+name = "evaluation-service"
+version = "0.1.0"
+source = { editable = "services/evaluation-service" }
+dependencies = [
+    { name = "shared-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "shared-lib", editable = "shared-lib" }]
+
+[[package]]
+name = "indexer-service"
+version = "0.1.0"
+source = { editable = "services/indexer-service" }
+dependencies = [
+    { name = "shared-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "shared-lib", editable = "shared-lib" }]
+
+[[package]]
+name = "shared-lib"
+version = "0.1.0"
+source = { editable = "shared-lib" }
+
+[[package]]
+name = "week3-rag-aws"
+version = "0.1.0"
+source = { virtual = "." }
