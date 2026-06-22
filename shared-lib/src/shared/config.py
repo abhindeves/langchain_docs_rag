@@ -8,8 +8,8 @@ class SharedSettings(BaseSettings):
 
     # Common RAG settings
     embedding_model: str = "amazon.titan-embed-text-v2:0"
+    chat_model: str = "anthropic.claude-3-haiku-20240307-v1:0"
     aws_region: str = "ap-south-1"
-    aws_bearer_token_bedrock: str | None = None
 
     # Reads environment variables or local .env automatically
     model_config = SettingsConfigDict(

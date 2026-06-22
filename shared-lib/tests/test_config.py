@@ -8,7 +8,7 @@ def test_shared_settings_defaults():
         "qdrant",
     )  # Allow either depending on local environment
     assert settings.qdrant_port == 6333
-    assert settings.embedding_model == "text-embedding-3-small"
+    assert settings.embedding_model == "amazon.titan-embed-text-v2:0"
 
 
 def test_shared_settings_env_override(monkeypatch):
