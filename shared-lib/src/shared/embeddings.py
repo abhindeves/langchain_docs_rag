@@ -1,6 +1,8 @@
+import asyncio
 import json
 
 import boto3
+from botocore.config import Config
 
 from shared.config import get_shared_settings
 
@@ -10,13 +12,25 @@ class Embedder:
         settings = get_shared_settings()
         self.model_id = settings.embedding_model
 
+        # Configure Boto3 to use adaptive rate-limiting and retries
+        config = Config(
+            retries={
+                "max_attempts": 10,  # Retry up to 10 times
+                "mode": "adaptive",  # Client-side rate-limiting + backoff
+            }
+        )
+
         self.client = boto3.client(
             service_name="bedrock-runtime",
             region_name=settings.aws_region,
+            config=config,
         )
 
-    def embed_query(self, text: str) -> list[float]:
-        """Generate embedding vector for a single query string using Bedrock."""
+        # Capped concurrency globally across this instance
+        self.semaphore = asyncio.Semaphore(10)
+
+    def _embed_query_sync(self, text: str) -> list[float]:
+        """Synchronous worker that performs the actual blocking API call."""
         payload = {"inputText": text, "dimensions": 1024, "normalize": True}
         response = self.client.invoke_model(
             body=json.dumps(payload),
@@ -24,12 +38,21 @@ class Embedder:
             accept="application/json",
             contentType="application/json",
         )
-        # response["body"] is a streaming body, we need to read and decode it
         response_body = json.loads(response.get("body").read())
         return response_body.get("embedding")
 
-    def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        """Generate embedding vectors for a list of document strings."""
+    async def embed_query(self, text: str) -> list[float]:
+        """Async generate embedding vector, regulated by the instance semaphore."""
+
+        async with self.semaphore:
+            return await asyncio.to_thread(self._embed_query_sync, text)
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        """Async generate embedding vectors for a list of strings in parallel."""
+
         if not texts:
             return []
-        return [self.embed_query(t) for t in texts]
+
+        tasks = [self.embed_query(text) for text in texts]
+
+        return await asyncio.gather(*tasks)
