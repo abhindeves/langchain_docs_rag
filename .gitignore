@@ -12,3 +12,7 @@ wheels/
 # Editor settings
 .vscode/
 **/pyrightconfig.json
+
+# Environment variables & secrets
+.env
+.env.*

@@ -7,7 +7,9 @@ class SharedSettings(BaseSettings):
     qdrant_api_key: str | None = None
 
     # Common RAG settings
-    embedding_model: str = "text-embedding-3-small"
+    embedding_model: str = "amazon.titan-embed-text-v2:0"
+    aws_region: str = "ap-south-1"
+    aws_bearer_token_bedrock: str | None = None
 
     # Reads environment variables or local .env automatically
     model_config = SettingsConfigDict(
