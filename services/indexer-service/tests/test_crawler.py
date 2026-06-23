@@ -17,9 +17,7 @@ def test_run_crawler(
 ):
     # Arrange: Set up mock return values
     mock_download.return_value = (
-        "# Header 1\n"
-        "Source: https://example.com/doc1\n"
-        "This is mock content for page 1."
+        "# Header 1\nSource: https://example.com/doc1\nThis is mock content for page 1."
     )
     mock_check_hash.return_value = False  # Force processing
     settings = get_shared_settings()
