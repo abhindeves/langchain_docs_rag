@@ -26,9 +26,6 @@ class Embedder:
             config=config,
         )
 
-        # Capped concurrency globally across this instance
-        self.semaphore = asyncio.Semaphore(10)
-
     def _embed_query_sync(self, text: str) -> list[float]:
         """Synchronous worker that performs the actual blocking API call."""
         payload = {"inputText": text, "dimensions": 1024, "normalize": True}
@@ -42,17 +39,22 @@ class Embedder:
         return response_body.get("embedding")
 
     async def embed_query(self, text: str) -> list[float]:
-        """Async generate embedding vector, regulated by the instance semaphore."""
+        """Async generate embedding vector."""
+        return await asyncio.to_thread(self._embed_query_sync, text)
 
-        async with self.semaphore:
-            return await asyncio.to_thread(self._embed_query_sync, text)
-
-    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
+    async def embed_documents(
+        self, texts: list[str], concurrency_limit: int = 10
+    ) -> list[list[float]]:
         """Async generate embedding vectors for a list of strings in parallel."""
-
         if not texts:
             return []
 
-        tasks = [self.embed_query(text) for text in texts]
+        semaphore = asyncio.Semaphore(concurrency_limit)
+
+        async def embed_with_sem(t: str) -> list[float]:
+            async with semaphore:
+                return await self.embed_query(t)
+
+        tasks = [embed_with_sem(t) for t in texts]
 
         return await asyncio.gather(*tasks)

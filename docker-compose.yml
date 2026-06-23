@@ -23,6 +23,10 @@ services:
       - QDRANT_PORT=6333
       - JWT_SECRET=change_me_local_development_only
       - LOG_LEVEL=INFO
+      - AWS_REGION=ap-south-1
+      - AWS_DEFAULT_REGION=ap-south-1
+    volumes:
+      - ~/.aws:/root/.aws:ro
     depends_on:
       - qdrant
     networks:

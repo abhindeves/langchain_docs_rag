@@ -10,6 +10,9 @@ class SharedSettings(BaseSettings):
     embedding_model: str = "amazon.titan-embed-text-v2:0"
     chat_model: str = "anthropic.claude-3-haiku-20240307-v1:0"
     aws_region: str = "ap-south-1"
+    s3_bucket: str = "rag-document-store"
+    sqs_queue_url: str = "rag-ingestion-queue"
+    qdrant_collection: str = "documents"
 
     # Reads environment variables or local .env automatically
     model_config = SettingsConfigDict(

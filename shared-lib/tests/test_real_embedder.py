@@ -12,21 +12,22 @@ print(f"Sending text to Bedrock model '{embedder.model_id}'...")
 
 # Override the semaphore to 3 to easily demonstrate queuing in action
 CONCURRENCY_LIMIT = 3
-embedder.semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
+local_semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
 
 
 async def track_task(i, doc_text):
     start_wait = time.time()
 
     # Calculate active calls based on semaphore's internal counter
-    active_calls = CONCURRENCY_LIMIT - embedder.semaphore._value
+    active_calls = CONCURRENCY_LIMIT - local_semaphore._value
     print(
         f"[Task {i:02d}] Requesting semaphore... "
         f"(Active Bedrock calls: {active_calls}/{CONCURRENCY_LIMIT})"
     )
 
-    # Calling embed_query, which internally awaits on the semaphore
-    vector = await embedder.embed_query(doc_text)
+    # Calling embed_query, wrapped by local_semaphore
+    async with local_semaphore:
+        vector = await embedder.embed_query(doc_text)
 
     elapsed = time.time() - start_wait
     print(f"[Task {i:02d}] Finished! Took {elapsed:.2f} seconds.")
