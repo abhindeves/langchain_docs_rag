@@ -3,7 +3,7 @@ import sys
 
 import boto3
 
-# Dynamically add indexer-service/src and shared-lib/src relative to this script
+# Dynamically add indexer-service/src and shared-lib/src relative to script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 workspace_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
 
