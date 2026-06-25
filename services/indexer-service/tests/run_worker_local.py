@@ -11,7 +11,6 @@ sys.path.append(os.path.join(workspace_root, "services", "indexer-service", "src
 sys.path.append(os.path.join(workspace_root, "shared-lib", "src"))
 
 from indexer.lambda_handler import worker_handler  # noqa: E402
-
 from shared.config import get_shared_settings  # noqa: E402
 
 
