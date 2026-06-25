@@ -38,7 +38,7 @@ echo "=== Copying source directories to build target ==="
 cp -r "$DIR/src/indexer" "$BUILD_DIR/"
 
 # Copy shared-lib source package
-cp -r "$WORKSPACE_DIR/shared-lib/src/shared" "$BUILD_DIR/"
+cp -r "$WORKSPACE_DIR/shared-lib/src/rag_shared" "$BUILD_DIR/"
 
 echo "=== Cleaning up build assets ==="
 # Remove temp requirements

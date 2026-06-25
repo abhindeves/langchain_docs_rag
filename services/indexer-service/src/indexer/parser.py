@@ -8,7 +8,7 @@ import urllib.request
 import boto3
 from langchain_core.documents import Document
 
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 LLMS_FULL_URL = "https://docs.langchain.com/llms-full.txt"
 

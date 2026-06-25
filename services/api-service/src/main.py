@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from qdrant_client import QdrantClient
 
-from shared.config import get_shared_settings
-from shared.embeddings import Embedder
+from rag_shared.config import get_shared_settings
+from rag_shared.embeddings import Embedder
 
 app = FastAPI(
     title=" RAG API Service", description="Production-grade RAG API", version="0.1.0"

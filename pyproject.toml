@@ -41,4 +41,4 @@ ignore = []
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ["shared"]
+known-first-party = ["rag_shared"]

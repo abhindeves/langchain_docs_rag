@@ -2,7 +2,7 @@
 import asyncio
 import time
 
-from shared.embeddings import Embedder
+from rag_shared.embeddings import Embedder
 
 print("Instantiating Embedder client...")
 embedder = Embedder()

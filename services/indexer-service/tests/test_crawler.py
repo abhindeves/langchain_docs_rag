@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from indexer.crawler import run_crawler
 
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 
 @patch("indexer.crawler.s3_client")

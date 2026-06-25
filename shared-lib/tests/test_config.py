@@ -1,4 +1,4 @@
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 
 def test_shared_settings_defaults():

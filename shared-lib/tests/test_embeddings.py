@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from shared.embeddings import Embedder
+from rag_shared.embeddings import Embedder
 
 
-@patch("shared.embeddings.boto3.client")
+@patch("rag_shared.embeddings.boto3.client")
 def test_embedder_initialization(mock_boto_client):
-    with patch("shared.embeddings.get_shared_settings") as mock_get_settings:
+    with patch("rag_shared.embeddings.get_shared_settings") as mock_get_settings:
         mock_settings = MagicMock()
         mock_settings.embedding_model = "amazon.titan-embed-text-v2:0"
         mock_settings.aws_region = "ap-south-1"
@@ -25,7 +25,7 @@ def test_embedder_initialization(mock_boto_client):
 
 
 @pytest.mark.anyio
-@patch("shared.embeddings.boto3.client")
+@patch("rag_shared.embeddings.boto3.client")
 async def test_embed_query(mock_boto_client):
     mock_bedrock = MagicMock()
     mock_boto_client.return_value = mock_bedrock
@@ -53,7 +53,7 @@ async def test_embed_query(mock_boto_client):
 
 
 @pytest.mark.anyio
-@patch("shared.embeddings.boto3.client")
+@patch("rag_shared.embeddings.boto3.client")
 async def test_embed_documents(mock_boto_client):
     mock_bedrock = MagicMock()
     mock_boto_client.return_value = mock_bedrock

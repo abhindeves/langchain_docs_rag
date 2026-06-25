@@ -4,7 +4,7 @@ import json
 import boto3
 from botocore.config import Config
 
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 
 class Embedder:

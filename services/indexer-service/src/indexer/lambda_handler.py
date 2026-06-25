@@ -15,7 +15,7 @@ from indexer.storage import (
     save_chunks_to_qdrant,
     update_document_hash,
 )
-from shared.embeddings import Embedder
+from rag_shared.embeddings import Embedder
 
 # Configure Logging
 logger = logging.getLogger()

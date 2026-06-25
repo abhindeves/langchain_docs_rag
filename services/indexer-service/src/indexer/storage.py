@@ -12,7 +12,7 @@ from qdrant_client.models import (
     VectorParams,
 )
 
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 # Initialize clients using shared settings config
 settings = get_shared_settings()

@@ -10,7 +10,7 @@ import boto3
 
 from indexer.parser import download_raw_docs, parse_raw_docs
 from indexer.storage import check_document_hash, update_document_hash
-from shared.config import get_shared_settings
+from rag_shared.config import get_shared_settings
 
 # Initialize AWS clients
 s3_client = boto3.client("s3")
