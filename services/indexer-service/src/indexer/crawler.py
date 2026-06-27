@@ -1,32 +1,19 @@
-"""
-Crawler module to download llms-full.txt, parse into individual pages,
-upload changed docs to S3, and trigger processing jobs.
-"""
-
 import hashlib
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import boto3
 
 from indexer.parser import download_raw_docs, parse_raw_docs
-from indexer.storage import check_document_hash, update_document_hash
+from indexer.storage import check_document_hashes_batch, update_document_hash
 from rag_shared.config import get_shared_settings
 
 # Initialize AWS clients
 s3_client = boto3.client("s3")
-sqs_client = boto3.client("sqs")
 settings = get_shared_settings()
 
 
 def _upload_to_s3(bucket: str, key: str, content: str) -> None:
-    """
-    Uploads raw text content to the S3 staging bucket.
-
-    Args:
-        bucket (str): S3 bucket name.
-        key (str): S3 object key path.
-        content (str): Raw document content string.
-    """
     s3_client.put_object(
         Bucket=bucket,
         Key=key,
@@ -34,66 +21,63 @@ def _upload_to_s3(bucket: str, key: str, content: str) -> None:
     )
 
 
-def _push_to_sqs(queue_url: str, payload: dict) -> None:
-    """
-    Sends a single document ingestion job to the SQS queue.
+def _upload_and_mark_pending(doc, doc_id: str, content_hash: str) -> None:
+    """Worker function to process a single document."""
+    hashed_filename = hashlib.md5(doc_id.encode("utf-8")).hexdigest()
+    s3_key = f"raw/pages/{hashed_filename}.json"
 
-    Args:
-        queue_url (str): The Amazon SQS Queue URL.
-        payload (dict): The message dictionary containing S3 details.
-    """
-    sqs_client.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(payload),
+    doc_payload = {
+        "doc_id": doc_id,
+        "doc_url": doc_id,
+        "title": doc.metadata.get("title", ""),
+        "hash": content_hash,
+        "page_content": doc.page_content,
+    }
+
+    # Upload to S3
+    _upload_to_s3(
+        bucket=settings.s3_bucket,
+        key=s3_key,
+        content=json.dumps(doc_payload),
     )
+
+    # Mark state as PENDING in DynamoDB
+    update_document_hash(doc_id, content_hash, status="PENDING")
 
 
 def run_crawler() -> int:
     """
     Downloads raw LLMs file, parses into pages, hashes each page,
-    uploads changed pages to S3, and dispatches them to SQS.
-
-    Returns:
-        int: Number of update jobs pushed to SQS.
+    and concurrently uploads changed pages to S3 as serialized JSON.
     """
     raw_text = download_raw_docs()
     documents = parse_raw_docs(raw_text)
 
-    dispatched_count = 0
+    # 1. Pre-calculate hashes for all crawled documents
+    doc_hash_map = {}
+    doc_by_id = {}
     for doc in documents:
         doc_id = doc.metadata["url"]
         content_hash = hashlib.md5(doc.page_content.encode("utf-8")).hexdigest()
+        doc_hash_map[doc_id] = content_hash
+        doc_by_id[doc_id] = doc
 
-        # Check if the page is already indexed and unchanged in DynamoDB
-        if check_document_hash(doc_id, content_hash):
-            continue
+    # 2. Check hashes in DynamoDB using batch querying (100 at a time)
+    unchanged_ids = check_document_hashes_batch(doc_hash_map)
 
-        # Deterministic flat filename for the S3 object key
-        hashed_filename = hashlib.md5(doc_id.encode("utf-8")).hexdigest()
-        s3_key = f"raw/pages/{hashed_filename}.txt"
+    # 3. Filter documents that need uploading (new or changed)
+    to_upload = []
+    for doc_id, content_hash in doc_hash_map.items():
+        if doc_id not in unchanged_ids:
+            to_upload.append((doc_by_id[doc_id], doc_id, content_hash))
 
-        # 1. Upload just this single page's text to S3
-        _upload_to_s3(
-            bucket=settings.s3_bucket,
-            key=s3_key,
-            content=doc.page_content,
-        )
+    # 4. Concurrently execute the uploads if changes are detected
+    if to_upload:
+        # Unpack list of tuples [(doc, id, hash)] -> three parallel tuples
+        docs, doc_ids, content_hashes = zip(*to_upload, strict=True)
 
-        # 2. Push metadata payload to SQS for this page
-        _push_to_sqs(
-            queue_url=settings.sqs_queue_url,
-            payload={
-                "s3_bucket": settings.s3_bucket,
-                "s3_key": s3_key,
-                "doc_id": doc_id,
-                "doc_url": doc_id,
-                "title": doc.metadata.get("title", ""),
-                "hash": content_hash,
-            },
-        )
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            # Force evaluation of map to propagate exceptions raised in threads
+            list(executor.map(_upload_and_mark_pending, docs, doc_ids, content_hashes))
 
-        # 3. Mark the document state as PENDING in DynamoDB
-        update_document_hash(doc_id, content_hash, status="PENDING")
-        dispatched_count += 1
-
-    return dispatched_count
+    return len(to_upload)

@@ -11,7 +11,8 @@ sys.path.append(os.path.join(workspace_root, "services", "indexer-service", "src
 sys.path.append(os.path.join(workspace_root, "shared-lib", "src"))
 
 from indexer.lambda_handler import worker_handler  # noqa: E402
-from shared.config import get_shared_settings  # noqa: E402
+
+from rag_shared.config import get_shared_settings  # noqa: E402
 
 
 def run_local_worker():
@@ -60,9 +61,7 @@ def run_local_worker():
 
             # 4. If successful, delete the processed messages from SQS
             for msg in messages:
-                sqs_client.delete_message(
-                    QueueUrl=settings.sqs_queue_url, ReceiptHandle=msg["ReceiptHandle"]
-                )
+                sqs_client.delete_message(QueueUrl=settings.sqs_queue_url, ReceiptHandle=msg["ReceiptHandle"])
                 print(f"Deleted message {msg['MessageId']} from SQS.")
 
             processed_count += len(messages)

@@ -1,62 +1,90 @@
 import hashlib
-import json
-from unittest.mock import patch
+from unittest.mock import call, patch
 
+import pytest
 from indexer.crawler import run_crawler
-
-from rag_shared.config import get_shared_settings
+from langchain_core.documents import Document
 
 
 @patch("indexer.crawler.s3_client")
-@patch("indexer.crawler.sqs_client")
-@patch("indexer.crawler.check_document_hash")
+@patch("indexer.crawler.check_document_hashes_batch")
 @patch("indexer.crawler.update_document_hash")
+@patch("indexer.crawler.parse_raw_docs")
 @patch("indexer.crawler.download_raw_docs")
-def test_run_crawler(
-    mock_download, mock_update_hash, mock_check_hash, mock_sqs, mock_s3
-):
-    # Arrange: Set up mock return values
-    mock_download.return_value = (
-        "# Header 1\nSource: https://example.com/doc1\nThis is mock content for page 1."
-    )
-    mock_check_hash.return_value = False  # Force processing
-    settings = get_shared_settings()
+def test_run_crawler_multiple_changes(mock_download, mock_parse_docs, mock_update_hash, mock_check_hash, mock_s3):
+    # Arrange: Set up mock documents
+    doc1 = Document(page_content="Content 1", metadata={"url": "https://example.com/p1"})
+    doc2 = Document(page_content="Content 2", metadata={"url": "https://example.com/p2"})
+    mock_parse_docs.return_value = [doc1, doc2]
+    mock_check_hash.return_value = set()  # Empty set = no docs are skipped
 
-    doc_url = "https://example.com/doc1"
-    expected_s3_key = (
-        f"raw/pages/{hashlib.md5(doc_url.encode('utf-8')).hexdigest()}.txt"
-    )
-    expected_content = (
-        "# Header 1\nSource: https://example.com/doc1\nThis is mock content for page 1."
-    )
+    hash1 = hashlib.md5(b"Content 1").hexdigest()
+    hash2 = hashlib.md5(b"Content 2").hexdigest()
 
-    # Act: Execute crawler
+    # Act
     result = run_crawler()
 
-    # Assert: Verify response and client arguments
+    # Assert
+    assert result == 2
+
+    # Verify both uploads were made to S3
+    assert mock_s3.put_object.call_count == 2
+
+    # Verify DynamoDB was marked PENDING for both
+    assert mock_update_hash.call_count == 2
+    mock_update_hash.assert_has_calls(
+        [
+            call("https://example.com/p1", hash1, status="PENDING"),
+            call("https://example.com/p2", hash2, status="PENDING"),
+        ],
+        any_order=True,
+    )
+
+
+@patch("indexer.crawler.s3_client")
+@patch("indexer.crawler.check_document_hashes_batch")
+@patch("indexer.crawler.update_document_hash")
+@patch("indexer.crawler.parse_raw_docs")
+@patch("indexer.crawler.download_raw_docs")
+def test_run_crawler_deduplication(mock_download, mock_parse_docs, mock_update_hash, mock_check_hash, mock_s3):
+    # Arrange: Page 1 is unchanged, Page 2 is new/changed
+    doc1 = Document(page_content="Content 1", metadata={"url": "https://example.com/p1"})
+    doc2 = Document(page_content="Content 2", metadata={"url": "https://example.com/p2"})
+    mock_parse_docs.return_value = [doc1, doc2]
+
+    # Mark Page 1 as unchanged in the mocked batch results
+    mock_check_hash.return_value = {"https://example.com/p1"}
+
+    hash2 = hashlib.md5(b"Content 2").hexdigest()
+
+    # Act
+    result = run_crawler()
+
+    # Assert
     assert result == 1
 
-    # Verify S3 client was called correctly
-    mock_s3.put_object.assert_called_once_with(
-        Bucket=settings.s3_bucket, Key=expected_s3_key, Body=expected_content
-    )
+    # Only Page 2 should be uploaded to S3
+    mock_s3.put_object.assert_called_once()
+    _, kwargs = mock_s3.put_object.call_args
+    expected_s3_key = f"raw/pages/{hashlib.md5(b'https://example.com/p2').hexdigest()}.json"
+    assert kwargs["Key"] == expected_s3_key
 
-    # Verify SQS client was called correctly
-    mock_sqs.send_message.assert_called_once()
-    _, kwargs = mock_sqs.send_message.call_args
-    assert kwargs["QueueUrl"] == settings.sqs_queue_url
+    # Only Page 2 should be marked PENDING
+    mock_update_hash.assert_called_once_with("https://example.com/p2", hash2, status="PENDING")
 
-    # Validate SQS Message payload format
-    payload = json.loads(kwargs["MessageBody"])
-    assert payload["s3_bucket"] == settings.s3_bucket
-    assert payload["s3_key"] == expected_s3_key
-    assert payload["doc_id"] == doc_url
-    assert payload["doc_url"] == doc_url
-    assert payload["title"] == "Header 1"
 
-    # Verify DynamoDB status was marked PENDING
-    mock_update_hash.assert_called_once_with(
-        doc_url,
-        hashlib.md5(expected_content.encode("utf-8")).hexdigest(),
-        status="PENDING",
-    )
+@patch("indexer.crawler.s3_client")
+@patch("indexer.crawler.check_document_hashes_batch")
+@patch("indexer.crawler.update_document_hash")
+@patch("indexer.crawler.parse_raw_docs")
+@patch("indexer.crawler.download_raw_docs")
+def test_run_crawler_exception_propagation(mock_download, mock_parse_docs, mock_update_hash, mock_check_hash, mock_s3):
+    # Arrange: S3 client throws error when put_object is called
+    doc1 = Document(page_content="Content 1", metadata={"url": "https://example.com/p1"})
+    mock_parse_docs.return_value = [doc1]
+    mock_check_hash.return_value = set()
+    mock_s3.put_object.side_effect = RuntimeError("S3 PutObject Failed!")
+
+    # Act & Assert: Exception is propagated back to the main thread
+    with pytest.raises(RuntimeError, match="S3 PutObject Failed!"):
+        run_crawler()

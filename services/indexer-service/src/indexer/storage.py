@@ -70,15 +70,32 @@ def check_document_hash(doc_id: str, new_hash: str) -> bool:
         table = get_table()
         response = table.get_item(Key={"doc_id": doc_id})
         item = response.get("Item")
-        if (
-            item
-            and item.get("content_hash") == new_hash
-            and item.get("status") == "COMPLETED"
-        ):
+        if item and item.get("content_hash") == new_hash and item.get("status") == "COMPLETED":
             return True
     except Exception as e:
         print(f"Error checking document hash: {e}")
     return False
+
+
+def check_document_hashes_batch(doc_hash_map: dict[str, str]) -> set[str]:
+    """
+    Scans DynamoDB once and returns a set of document IDs that are already completed
+    and unchanged. Highly performant and simple.
+    """
+    try:
+        table = get_table()
+        # Scan only the key fields. 'status' is an AWS reserved keyword, so we alias it to #s
+        response = table.scan(
+            ProjectionExpression="doc_id, content_hash, #s",
+            ExpressionAttributeNames={"#s": "status"},
+        )
+        items = response.get("Items", [])
+
+        # Build in-memory set of completed/pending document IDs where hashes match
+        return {item["doc_id"] for item in items if item.get("status") in ("COMPLETED", "PENDING") and item.get("content_hash") == doc_hash_map.get(item["doc_id"])}
+    except Exception as e:
+        print(f"Error scanning document hashes: {e}")
+        return set()
 
 
 def update_document_hash(doc_id: str, new_hash: str, status: str = "COMPLETED") -> None:
@@ -92,9 +109,7 @@ def update_document_hash(doc_id: str, new_hash: str, status: str = "COMPLETED") 
     """
     try:
         table = get_table()
-        table.put_item(
-            Item={"doc_id": doc_id, "content_hash": new_hash, "status": status}
-        )
+        table.put_item(Item={"doc_id": doc_id, "content_hash": new_hash, "status": status})
     except Exception as e:
         print(f"Error updating document hash: {e}")
 
@@ -112,17 +127,13 @@ def delete_document_vectors(doc_id: str) -> None:
         if client.collection_exists(settings.qdrant_collection):
             client.delete(
                 collection_name=settings.qdrant_collection,
-                points_selector=Filter(
-                    must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))]
-                ),
+                points_selector=Filter(must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))]),
             )
     except Exception as e:
         print(f"Error deleting document vectors: {e}")
 
 
-def save_chunks_to_qdrant(
-    doc_id: str, doc_url: str, chunks: list[str], embeddings: list[list[float]]
-) -> None:
+def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str], embeddings: list[list[float]]) -> None:
     """
     Upserts chunk texts, embeddings, and metadata payloads to the Qdrant index.
     Clears any existing vectors for the document first to prevent duplicates.

@@ -21,10 +21,12 @@ dev = [
     "pyright>=1.1.350",
     "pytest>=8.0.0",
     "pre-commit>=3.7.0",
+    "pulumi>=3.248.0",
+    "pulumi-aws>=7.34.0",
 ]
 
 [tool.ruff]
-line-length = 88
+line-length = 200
 target-version = "py312"
 
 [tool.ruff.lint]
