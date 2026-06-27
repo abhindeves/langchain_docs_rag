@@ -42,9 +42,7 @@ class Embedder:
         """Async generate embedding vector."""
         return await asyncio.to_thread(self._embed_query_sync, text)
 
-    async def embed_documents(
-        self, texts: list[str], concurrency_limit: int = 10
-    ) -> list[list[float]]:
+    async def embed_documents(self, texts: list[str], concurrency_limit: int = 10) -> list[list[float]]:
         """Async generate embedding vectors for a list of strings in parallel."""
         if not texts:
             return []

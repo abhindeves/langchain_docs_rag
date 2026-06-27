@@ -5,9 +5,7 @@ from qdrant_client import QdrantClient
 from rag_shared.config import get_shared_settings
 from rag_shared.embeddings import Embedder
 
-app = FastAPI(
-    title=" RAG API Service", description="Production-grade RAG API", version="0.1.0"
-)
+app = FastAPI(title=" RAG API Service", description="Production-grade RAG API", version="0.1.0")
 
 settings = get_shared_settings()
 

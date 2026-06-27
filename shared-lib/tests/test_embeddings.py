@@ -32,9 +32,7 @@ async def test_embed_query(mock_boto_client):
 
     # Mock invoke_model response body stream
     mock_body = MagicMock()
-    mock_body.read.return_value = json.dumps({"embedding": [0.1, 0.2, 0.3]}).encode(
-        "utf-8"
-    )
+    mock_body.read.return_value = json.dumps({"embedding": [0.1, 0.2, 0.3]}).encode("utf-8")
 
     mock_response = {"body": mock_body}
     mock_bedrock.invoke_model.return_value = mock_response

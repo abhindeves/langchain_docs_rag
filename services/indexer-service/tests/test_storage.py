@@ -8,9 +8,7 @@ def test_check_document_hash(mock_dynamodb):
     # Arrange: Mock DynamoDB Table lookup
     mock_table = MagicMock()
     mock_dynamodb.Table.return_value = mock_table
-    mock_table.get_item.return_value = {
-        "Item": {"content_hash": "correcthash", "status": "COMPLETED"}
-    }
+    mock_table.get_item.return_value = {"Item": {"content_hash": "correcthash", "status": "COMPLETED"}}
 
     # Act & Assert
     assert check_document_hash("doc1", "correcthash") is True
@@ -30,6 +28,4 @@ def test_update_document_hash(mock_dynamodb):
     update_document_hash("doc1", "newhash")
 
     # Assert: Verify PutItem parameters
-    mock_table.put_item.assert_called_once_with(
-        Item={"doc_id": "doc1", "content_hash": "newhash", "status": "COMPLETED"}
-    )
+    mock_table.put_item.assert_called_once_with(Item={"doc_id": "doc1", "content_hash": "newhash", "status": "COMPLETED"})

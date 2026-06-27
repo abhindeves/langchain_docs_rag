@@ -124,7 +124,7 @@ def worker_handler(event, context) -> dict:
                         doc_id = data.get("doc_id")
                         content_hash = data.get("hash")
                         if doc_id and content_hash:
-                            logger.warning(f"Marking document {doc_id} as FAILED in DynamoDB " f"(attempts: {receive_count})")
+                            logger.warning(f"Marking document {doc_id} as FAILED in DynamoDB (attempts: {receive_count})")
                             update_document_hash(doc_id, content_hash, status="FAILED")
                     except Exception:
                         pass

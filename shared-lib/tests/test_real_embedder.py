@@ -20,10 +20,7 @@ async def track_task(i, doc_text):
 
     # Calculate active calls based on semaphore's internal counter
     active_calls = CONCURRENCY_LIMIT - local_semaphore._value
-    print(
-        f"[Task {i:02d}] Requesting semaphore... "
-        f"(Active Bedrock calls: {active_calls}/{CONCURRENCY_LIMIT})"
-    )
+    print(f"[Task {i:02d}] Requesting semaphore... (Active Bedrock calls: {active_calls}/{CONCURRENCY_LIMIT})")
 
     # Calling embed_query, wrapped by local_semaphore
     async with local_semaphore:
@@ -41,10 +38,7 @@ async def main():
         num_docs = 9
         texts = [text] * num_docs
 
-        print(
-            f"\n--- Launching {num_docs} Parallel Requests"
-            f" (Semaphore Cap: {CONCURRENCY_LIMIT}) ---"
-        )
+        print(f"\n--- Launching {num_docs} Parallel Requests (Semaphore Cap: {CONCURRENCY_LIMIT}) ---")
         start_total = time.time()
 
         tasks = [track_task(i, t) for i, t in enumerate(texts, 1)]
