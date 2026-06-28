@@ -135,7 +135,7 @@ aws.iam.RolePolicy(
             {
                 "Version": "2012-10-17",
                 "Statement": [
-                    {"Effect": "Allow", "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"], "Resource": args[0]},
+                    {"Effect": "Allow", "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DescribeTable"], "Resource": args[0]},
                     {"Effect": "Allow", "Action": ["s3:GetObject"], "Resource": f"{args[1]}/*"},
                     {"Effect": "Allow", "Action": ["bedrock:InvokeModel"], "Resource": "*"},
                 ],
@@ -194,7 +194,16 @@ aws.iam.RolePolicy(
                 "Statement": [
                     {
                         "Effect": "Allow",
-                        "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:Scan", "dynamodb:Query", "dynamodb:BatchGetItem", "dynamodb:BatchWriteItem"],
+                        "Action": [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:Scan",
+                            "dynamodb:Query",
+                            "dynamodb:BatchGetItem",
+                            "dynamodb:BatchWriteItem",
+                            "dynamodb:DescribeTable",
+                        ],
                         "Resource": args[0],
                     },
                     {"Effect": "Allow", "Action": ["s3:PutObject"], "Resource": f"{args[1]}/*"},
