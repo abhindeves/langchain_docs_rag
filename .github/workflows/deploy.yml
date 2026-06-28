@@ -62,5 +62,3 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           QDRANT_HOST: ${{ secrets.QDRANT_HOST }}
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-          qdrant_host: ${{ secrets.QDRANT_HOST }}
-          qdrant_api_key: ${{ secrets.QDRANT_API_KEY }}
