@@ -59,6 +59,7 @@ dlq = aws.sqs.Queue(
 
 ingestion_queue = aws.sqs.Queue(
     "rag-ingestion-queue",
+    visibility_timeout_seconds=900,
     redrive_policy=dlq.arn.apply(
         lambda arn: json.dumps(
             {
