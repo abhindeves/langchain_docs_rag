@@ -20,7 +20,7 @@ def chunk_markdown_docs(docs: list[Document]) -> list[Document]:
     )
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
+        chunk_size=1800,
         chunk_overlap=100,
     )
 
