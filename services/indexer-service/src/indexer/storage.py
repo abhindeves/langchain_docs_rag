@@ -182,6 +182,18 @@ async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) ->
             sparse_vectors_config={"bm25_sparse_vector": SparseVectorParams(modifier=Modifier.IDF)},
         )
 
+    # 3. Ensure payload index exists for filtering/deleting documents by doc_id
+    try:
+        from qdrant_client.models import PayloadSchemaType
+
+        client.create_payload_index(
+            collection_name=settings.qdrant_collection,
+            field_name="doc_id",
+            field_schema=PayloadSchemaType.KEYWORD,
+        )
+    except Exception as e:
+        print(f"Payload index creation check warning: {e}")
+
     # 3. Generate dense embeddings asynchronously in parallel
     embeddings = await embedder.embed_documents(chunks)
 
