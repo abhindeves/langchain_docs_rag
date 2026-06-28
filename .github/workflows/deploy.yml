@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    name: Build & Deploy Infrastructure
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required to request JWT from GitHub OIDC
+      contents: read  # Required for actions/checkout
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Sync dependencies
+        run: uv sync --all-packages
+
+      - name: Build Lambda ZIP
+        run: |
+          chmod +x services/indexer-service/build.sh
+          ./services/indexer-service/build.sh
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::422600867909:role/github-actions-deploy-role
+          aws-region: ap-south-1
+
+      - name: Upload Zip to S3
+        run: |
+          aws s3 cp services/indexer-service/lambda_function.zip s3://my-rag-artifacts-bucket/lambda_function.zip
+
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+
+      - name: Deploy with Pulumi
+        run: |
+          cd infra
+          pulumi stack select dev
+          pulumi up --yes
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          QDRANT_HOST: ${{ secrets.QDRANT_HOST }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          qdrant_host: ${{ secrets.QDRANT_HOST }}
+          qdrant_api_key: ${{ secrets.QDRANT_API_KEY }}

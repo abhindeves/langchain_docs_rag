@@ -16,14 +16,10 @@ from indexer.storage import (
     save_chunks_to_qdrant,
     update_document_hash,
 )
-from rag_shared.embeddings import Embedder
 
 # Configure Logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-# Global Embedder client (singleton reuse)
-embedder = Embedder()
 
 
 def crawl_handler(event, context) -> dict:
@@ -90,8 +86,7 @@ async def _process_record_async(record: dict) -> None:
 
     chunks = chunk_markdown_docs([doc])
     chunk_texts = [c.page_content for c in chunks]
-    embeddings = await embedder.embed_documents(chunk_texts)
-    save_chunks_to_qdrant(doc_id, doc_url, chunk_texts, embeddings)
+    await save_chunks_to_qdrant(doc_id, doc_url, chunk_texts)
     update_document_hash(doc_id, content_hash)
 
 

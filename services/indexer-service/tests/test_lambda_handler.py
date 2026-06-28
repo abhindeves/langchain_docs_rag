@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 # Patch boto3 before importing lambda_handler to avoid real AWS configuration calls
 with patch("boto3.client"), patch("boto3.resource"):
-    from indexer.lambda_handler import crawl_handler, embedder, worker_handler
+    from indexer.lambda_handler import crawl_handler, worker_handler
 
 
 @patch("indexer.lambda_handler.run_crawler")
@@ -25,7 +25,7 @@ def test_crawl_handler(mock_run_crawler):
 @patch("indexer.lambda_handler.download_from_s3")
 @patch("indexer.lambda_handler.check_document_hash")
 @patch("indexer.lambda_handler.chunk_markdown_docs")
-@patch("indexer.lambda_handler.save_chunks_to_qdrant")
+@patch("indexer.lambda_handler.save_chunks_to_qdrant", new_callable=AsyncMock)
 @patch("indexer.lambda_handler.update_document_hash")
 def test_worker_handler_success(
     mock_update_hash,
@@ -72,9 +72,6 @@ def test_worker_handler_success(
     mock_chunk.page_content = "chunk content"
     mock_chunk_docs.return_value = [mock_chunk]
 
-    # Mock the async embeddings call
-    embedder.embed_documents = AsyncMock(return_value=[[0.1, 0.2, 0.3]])
-
     # Act
     response = worker_handler(event, None)
 
@@ -93,12 +90,10 @@ def test_worker_handler_success(
     assert reconstructed_doc.metadata["url"] == "https://example.com/doc1"
     assert reconstructed_doc.metadata["title"] == "Header 1"
 
-    embedder.embed_documents.assert_called_once_with(["chunk content"])
     mock_save_qdrant.assert_called_once_with(
         "https://example.com/doc1",
         "https://example.com/doc1",
         ["chunk content"],
-        [[0.1, 0.2, 0.3]],
     )
     mock_update_hash.assert_called_once_with("https://example.com/doc1", "old-hash")
 

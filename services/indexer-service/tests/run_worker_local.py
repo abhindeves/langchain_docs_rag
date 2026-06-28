@@ -21,7 +21,7 @@ def run_local_worker():
 
     print("=== Starting Local Worker Integration Test ===")
     print(f"SQS Queue URL: {settings.sqs_queue_url}")
-    print(f"Qdrant Host: {settings.qdrant_host}:{settings.qdrant_port}")
+    print(f"Qdrant Host: {settings.qdrant_host}")
 
     processed_count = 0
 

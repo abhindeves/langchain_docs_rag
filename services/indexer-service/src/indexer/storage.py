@@ -1,3 +1,5 @@
+import asyncio
+import os
 import uuid
 from typing import Any
 
@@ -8,15 +10,35 @@ from qdrant_client.models import (
     FieldCondition,
     Filter,
     MatchValue,
+    Modifier,
     PointStruct,
+    SparseVector,
+    SparseVectorParams,
     VectorParams,
 )
 
 from rag_shared.config import get_shared_settings
+from rag_shared.embeddings import Embedder
 
 # Initialize clients using shared settings config
 settings = get_shared_settings()
 dynamodb: Any = boto3.resource("dynamodb", region_name=settings.aws_region)
+embedder = Embedder()
+
+_sparse_model = None
+
+
+def get_sparse_model():
+    """Lazily loads and returns the FastEmbed BM25 sparse text embedder."""
+    global _sparse_model
+    if _sparse_model is None:
+        # Set cache path to /tmp/fastembed for write permissions in Lambda environment
+        os.environ["FASTEMBED_CACHE_PATH"] = "/tmp/fastembed"
+        from fastembed import SparseTextEmbedding
+
+        _sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
+    return _sparse_model
+
 
 TABLE_NAME = "DocumentSyncStatus"
 
@@ -134,7 +156,7 @@ def delete_document_vectors(doc_id: str) -> None:
         print(f"Error deleting document vectors: {e}")
 
 
-def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str], embeddings: list[list[float]]) -> None:
+async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) -> None:
     """
     Upserts chunk texts, embeddings, and metadata payloads to the Qdrant index.
     Clears any existing vectors for the document first to prevent duplicates.
@@ -143,28 +165,44 @@ def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str], embeddin
         doc_id (str): The document ID.
         doc_url (str): The source URL.
         chunks (list[str]): The plain text segments.
-        embeddings (list[list[float]]): Corresponding Bedrock embedding vectors.
     """
+    if not chunks:
+        return
+
     # 1. Wipes out any old chunks first
     delete_document_vectors(doc_id)
 
     client = get_qdrant_client()
 
-    # 2. Ensure collection is created
+    # 2. Ensure collection is created with hybrid vector support (dense + sparse)
     if not client.collection_exists(settings.qdrant_collection):
         client.create_collection(
             collection_name=settings.qdrant_collection,
-            vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
+            vectors_config={"dense_vector": VectorParams(size=1024, distance=Distance.COSINE)},
+            sparse_vectors_config={"bm25_sparse_vector": SparseVectorParams(modifier=Modifier.IDF)},
         )
 
-    # 3. Build upsert list
+    # 3. Generate dense embeddings asynchronously in parallel
+    embeddings = await embedder.embed_documents(chunks)
+
+    # 4. Generate sparse embeddings using FastEmbed (bm25) in a thread pool
+    sparse_model = get_sparse_model()
+    sparse_embeddings = await asyncio.to_thread(lambda sm=sparse_model, bc=chunks: list(sm.embed(bc)))
+
+    # 5. Prepare Points
     points = []
-    for i, (chunk, vector) in enumerate(zip(chunks, embeddings, strict=False)):
+    for i, (chunk, dense_vector, sparse_vector) in enumerate(zip(chunks, embeddings, sparse_embeddings, strict=True)):
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_chunk_{i}"))
         points.append(
             PointStruct(
                 id=point_id,
-                vector=vector,
+                vector={
+                    "dense_vector": dense_vector,
+                    "bm25_sparse_vector": SparseVector(
+                        indices=sparse_vector.indices.tolist(),
+                        values=sparse_vector.values.tolist(),
+                    ),
+                },
                 payload={
                     "doc_id": doc_id,
                     "doc_url": doc_url,
@@ -174,4 +212,5 @@ def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str], embeddin
             )
         )
 
+    # 6. Upsert to Qdrant
     client.upsert(collection_name=settings.qdrant_collection, points=points)
