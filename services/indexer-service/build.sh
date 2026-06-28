@@ -47,8 +47,6 @@ rm -f "$BUILD_DIR/requirements.txt"
 find "$BUILD_DIR" -type d -name "__pycache__" -exec rm -rf {} +
 find "$BUILD_DIR" -type f -name "*.pyc" -delete
 find "$BUILD_DIR" -type f -name "*.pyo" -delete
-find "$BUILD_DIR" -type d -name "*.dist-info" -exec rm -rf {} +
-find "$BUILD_DIR" -type d -name "*.egg-info" -exec rm -rf {} +
 
 echo "=== Generating ZIP file ==="
 # Zip the contents of BUILD_DIR into ZIP_FILE
