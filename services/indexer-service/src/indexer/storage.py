@@ -25,9 +25,10 @@ def get_qdrant_client() -> QdrantClient:
     """
     Initializes and returns a Qdrant client connection.
     """
+    if not settings.qdrant_host:
+        raise ValueError("Qdrant host URL is not configured.")
     return QdrantClient(
-        host=settings.qdrant_host,
-        port=settings.qdrant_port,
+        url=settings.qdrant_host,
         api_key=settings.qdrant_api_key,
     )
 

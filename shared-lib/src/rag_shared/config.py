@@ -1,9 +1,12 @@
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SharedSettings(BaseSettings):
-    qdrant_host: str = "localhost"
-    qdrant_port: int = 6333
+    qdrant_host: str = Field(
+        default="",
+        validation_alias=AliasChoices("qdrant_host", "qdrant_cluster_endpoint"),
+    )
     qdrant_api_key: str | None = None
 
     # Common RAG settings

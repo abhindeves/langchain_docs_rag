@@ -29,10 +29,10 @@ async def liveness():
 async def readiness():
     """Readiness check that verifies connectivity to the Qdrant database."""
     try:
-        # Initialize client using host and port from settings
+        if not settings.qdrant_host:
+            raise ValueError("Qdrant host URL is not configured.")
         client = QdrantClient(
-            host=settings.qdrant_host,
-            port=settings.qdrant_port,
+            url=settings.qdrant_host,
             api_key=settings.qdrant_api_key,
             timeout=2,  # short timeout for quick health check
         )
