@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import boto3
 
 from indexer.parser import download_raw_docs, parse_raw_docs
-from indexer.storage import check_document_hashes_batch, update_document_hash
+from indexer.storage import check_document_hashes_batch, get_table, update_document_hash
 from rag_shared.config import get_shared_settings
 
 # Initialize AWS clients
@@ -45,6 +45,54 @@ def _upload_and_mark_pending(doc, doc_id: str, content_hash: str) -> None:
     update_document_hash(doc_id, content_hash, status="PENDING")
 
 
+def _prune_deleted_documents(crawled_doc_ids: set[str]) -> int:
+    """
+    Finds documents in DynamoDB that no longer exist in the crawled set,
+    and removes them from DynamoDB, S3, and Qdrant.
+    """
+    try:
+        table = get_table()
+
+        # 1. Scan DynamoDB for all existing doc_ids
+        response = table.scan(ProjectionExpression="doc_id")
+        db_items = response.get("Items", [])
+        db_doc_ids = {item["doc_id"] for item in db_items}
+
+        # 2. Identify orphaned documents (in DB but not in crawled set)
+        orphaned_ids = db_doc_ids - crawled_doc_ids
+        if not orphaned_ids:
+            return 0
+
+        print(f"Found {len(orphaned_ids)} orphaned documents to prune.")
+
+        # 3. Import delete function
+        from indexer.storage import delete_document_vectors
+
+        pruned_count = 0
+        for doc_id in orphaned_ids:
+            try:
+                # A. Delete vectors from Qdrant Cloud
+                delete_document_vectors(doc_id)
+
+                # B. Delete raw payload from S3
+                hashed_filename = hashlib.md5(doc_id.encode("utf-8")).hexdigest()
+                s3_key = f"raw/pages/{hashed_filename}.json"
+                s3_client.delete_object(Bucket=settings.s3_bucket, Key=s3_key)
+
+                # C. Delete tracking entry from DynamoDB
+                table.delete_item(Key={"doc_id": doc_id})
+
+                pruned_count += 1
+                print(f"Pruned orphaned document: {doc_id}")
+            except Exception as e:
+                print(f"Failed to prune document {doc_id}: {e}")
+
+        return pruned_count
+    except Exception as e:
+        print(f"Error during pruning execution: {e}")
+        return 0
+
+
 def run_crawler() -> int:
     """
     Downloads raw LLMs file, parses into pages, hashes each page,
@@ -79,5 +127,10 @@ def run_crawler() -> int:
         with ThreadPoolExecutor(max_workers=20) as executor:
             # Force evaluation of map to propagate exceptions raised in threads
             list(executor.map(_upload_and_mark_pending, docs, doc_ids, content_hashes))
+
+    # 5. Prune any orphaned documents
+    pruned_count = _prune_deleted_documents(set(doc_hash_map.keys()))
+    if pruned_count > 0:
+        print(f"Pruning complete. Removed {pruned_count} orphaned documents.")
 
     return len(to_upload)
