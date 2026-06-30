@@ -1,14 +1,19 @@
+import logging
+
 from langchain_core.documents import Document
 from langchain_text_splitters import (
     MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def chunk_markdown_docs(docs: list[Document]) -> list[Document]:
     """
     Header-aware chunking.
     """
+    logger.info(f"Splitting {len(docs)} documents using header-aware chunking...")
 
     markdown_splitter = MarkdownHeaderTextSplitter(
         headers_to_split_on=[
@@ -62,5 +67,5 @@ def chunk_markdown_docs(docs: list[Document]) -> list[Document]:
 
         all_chunks.extend(splits)
 
-    print(f"Created {len(all_chunks)} chunks")
+    logger.info(f"Created {len(all_chunks)} markdown chunks successfully.")
     return all_chunks

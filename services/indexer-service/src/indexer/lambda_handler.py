@@ -18,8 +18,8 @@ from indexer.storage import (
 )
 
 # Configure Logging
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def crawl_handler(event, context) -> dict:
@@ -29,6 +29,7 @@ def crawl_handler(event, context) -> dict:
     """
     logger.info("Executing crawler/dispatcher lambda handler...")
     result = run_crawler()
+    logger.info(f"Crawler/Dispatcher execution complete. Dispatched {result} raw documents to S3.")
     return {
         "statusCode": 200,
         "body": json.dumps({"message": "Crawl executed successfully", "jobs_dispatched": result}),
@@ -59,6 +60,7 @@ async def _process_record_async(record: dict) -> None:
     if not s3_bucket or not s3_key:
         raise ValueError(f"S3 coordinates missing in record body: {body}")
 
+    logger.info(f"SQS record message {record.get('messageId')} coordinates parsed successfully: s3://{s3_bucket}/{s3_key}")
     raw_text = download_from_s3(s3_bucket, s3_key)
 
     # The downloaded file is serialized JSON containing page content and metadata
@@ -75,6 +77,7 @@ async def _process_record_async(record: dict) -> None:
         logger.info(f"Document {doc_id} has not changed. Skipping ingestion.")
         return
 
+    logger.info(f"Reconstructing document: {doc_id} (title: '{title}'). Initiating chunking...")
     doc = Document(
         page_content=page_content,
         metadata={
@@ -83,11 +86,12 @@ async def _process_record_async(record: dict) -> None:
             "source": doc_url,
         },
     )
-
     chunks = chunk_markdown_docs([doc])
     chunk_texts = [c.page_content for c in chunks]
+
     await save_chunks_to_qdrant(doc_id, doc_url, chunk_texts)
     update_document_hash(doc_id, content_hash)
+    logger.info(f"Successfully processed and indexed document: {doc_id}. Synced status to COMPLETED.")
 
 
 def worker_handler(event, context) -> dict:
@@ -95,18 +99,22 @@ def worker_handler(event, context) -> dict:
     Worker handler triggered by Amazon SQS Queue messages.
     Processes S3 raw documents, parsing and indexing only modified pages.
     """
-    logger.info("Executing worker queue lambda handler...")
+    records = event.get("Records", [])
+    logger.info(f"Executing worker queue lambda handler. Received SQS batch containing {len(records)} records.")
 
-    for record in event.get("Records", []):
+    for record in records:
         try:
+            logger.info(f"Starting async processing for SQS record ID: {record.get('messageId')}")
             # Runs the async pipeline for this specific record
             asyncio.run(_process_record_async(record))
+            logger.info(f"Finished processing SQS record ID: {record.get('messageId')} successfully.")
         except Exception as e:
-            logger.error(f"Error processing SQS record {record.get('messageId')}: {str(e)}")
+            logger.error(f"Error processing SQS record {record.get('messageId')}: {str(e)}", exc_info=True)
 
             # Check SQS receive count to decide if we mark DynamoDB as FAILED
             try:
                 receive_count = int(record.get("attributes", {}).get("ApproximateReceiveCount", 1))
+                logger.warning(f"SQS record ID {record.get('messageId')} failed attempt {receive_count}/3.")
                 if receive_count >= 3:
                     body = json.loads(record["body"])
                     s3_info = body["Records"][0]["s3"]
@@ -114,15 +122,16 @@ def worker_handler(event, context) -> dict:
                     s3_key = s3_info["object"]["key"]
                     try:
                         # Try to download and parse the JSON file to get doc_id and hash
+                        logger.warning(f"SQS attempts exceeded threshold. Marking document status as FAILED for source coordinates: s3://{s3_bucket}/{s3_key}")
                         raw_text = download_from_s3(s3_bucket, s3_key)
                         data = json.loads(raw_text)
                         doc_id = data.get("doc_id")
                         content_hash = data.get("hash")
                         if doc_id and content_hash:
-                            logger.warning(f"Marking document {doc_id} as FAILED in DynamoDB (attempts: {receive_count})")
+                            logger.error(f"Marking document {doc_id} as FAILED in DynamoDB (attempts: {receive_count})")
                             update_document_hash(doc_id, content_hash, status="FAILED")
-                    except Exception:
-                        pass
+                    except Exception as parse_err:
+                        logger.error(f"Failed to extract document identifiers from raw S3 coordinates to mark FAILED state: {str(parse_err)}")
             except Exception as ddb_err:
                 logger.error(f"Failed to update document status to FAILED in DynamoDB: {str(ddb_err)}")
 

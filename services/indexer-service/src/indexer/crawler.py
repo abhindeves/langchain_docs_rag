@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import boto3
@@ -9,6 +10,7 @@ from indexer.storage import check_document_hashes_batch, get_table, update_docum
 from rag_shared.config import get_shared_settings
 
 # Initialize AWS clients
+logger = logging.getLogger(__name__)
 s3_client = boto3.client("s3")
 settings = get_shared_settings()
 
@@ -34,6 +36,7 @@ def _upload_and_mark_pending(doc, doc_id: str, content_hash: str) -> None:
         "page_content": doc.page_content,
     }
 
+    logger.info(f"Uploading raw page payload to S3 (key: {s3_key}) and marking status as PENDING in DynamoDB for document: {doc_id}")
     # Upload to S3
     _upload_to_s3(
         bucket=settings.s3_bucket,
@@ -61,9 +64,10 @@ def _prune_deleted_documents(crawled_doc_ids: set[str]) -> int:
         # 2. Identify orphaned documents (in DB but not in crawled set)
         orphaned_ids = db_doc_ids - crawled_doc_ids
         if not orphaned_ids:
+            logger.info("No orphaned documents found. Pruning check complete.")
             return 0
 
-        print(f"Found {len(orphaned_ids)} orphaned documents to prune.")
+        logger.info(f"Found {len(orphaned_ids)} orphaned documents to prune.")
 
         # 3. Import delete function
         from indexer.storage import delete_document_vectors
@@ -72,24 +76,27 @@ def _prune_deleted_documents(crawled_doc_ids: set[str]) -> int:
         for doc_id in orphaned_ids:
             try:
                 # A. Delete vectors from Qdrant Cloud
+                logger.info(f"Pruning: Deleting Qdrant vectors for orphaned document {doc_id}...")
                 delete_document_vectors(doc_id)
 
                 # B. Delete raw payload from S3
                 hashed_filename = hashlib.md5(doc_id.encode("utf-8")).hexdigest()
                 s3_key = f"raw/pages/{hashed_filename}.json"
+                logger.info(f"Pruning: Deleting S3 raw file {s3_key}...")
                 s3_client.delete_object(Bucket=settings.s3_bucket, Key=s3_key)
 
                 # C. Delete tracking entry from DynamoDB
+                logger.info(f"Pruning: Deleting DynamoDB status record for {doc_id}...")
                 table.delete_item(Key={"doc_id": doc_id})
 
                 pruned_count += 1
-                print(f"Pruned orphaned document: {doc_id}")
+                logger.info(f"Successfully pruned orphaned document: {doc_id}")
             except Exception as e:
-                print(f"Failed to prune document {doc_id}: {e}")
+                logger.error(f"Failed to prune document {doc_id}: {e}", exc_info=True)
 
         return pruned_count
     except Exception as e:
-        print(f"Error during pruning execution: {e}")
+        logger.error(f"Error during pruning execution: {e}", exc_info=True)
         return 0
 
 
@@ -131,6 +138,7 @@ def run_crawler() -> int:
     # 5. Prune any orphaned documents
     pruned_count = _prune_deleted_documents(set(doc_hash_map.keys()))
     if pruned_count > 0:
-        print(f"Pruning complete. Removed {pruned_count} orphaned documents.")
+        logger.info(f"Pruning complete. Removed {pruned_count} orphaned documents.")
 
+    logger.info(f"Crawler run finished. Uploaded and queued {len(to_upload)} new/changed files to S3.")
     return len(to_upload)

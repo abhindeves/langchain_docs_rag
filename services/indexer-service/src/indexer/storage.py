@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import uuid
 from typing import Any
@@ -23,6 +24,8 @@ from rag_shared.embeddings import Embedder
 # Initialize clients using shared settings config
 settings = get_shared_settings()
 dynamodb: Any = boto3.resource("dynamodb", region_name=settings.aws_region)
+logger = logging.getLogger(__name__)
+
 embedder = Embedder()
 
 _sparse_model = None
@@ -71,7 +74,7 @@ def get_table():
         table.load()  # Will trigger exception if table does not exist
         return table
     except dynamodb.meta.client.exceptions.ResourceNotFoundException:
-        print(f"DynamoDB Table '{TABLE_NAME}' not found. Creating...")
+        logger.warning(f"DynamoDB Table '{TABLE_NAME}' not found. Creating...")
         table = dynamodb.create_table(
             TableName=TABLE_NAME,
             KeySchema=[{"AttributeName": "doc_id", "KeyType": "HASH"}],
@@ -79,7 +82,7 @@ def get_table():
             BillingMode="PAY_PER_REQUEST",
         )
         table.meta.client.get_waiter("table_exists").wait(TableName=TABLE_NAME)
-        print(f"Created DynamoDB Table '{TABLE_NAME}'.")
+        logger.info(f"Created DynamoDB Table '{TABLE_NAME}'.")
         return table
 
 
@@ -102,7 +105,7 @@ def check_document_hash(doc_id: str, new_hash: str) -> bool:
         if item and item.get("content_hash") == new_hash and item.get("status") == "COMPLETED":
             return True
     except Exception as e:
-        print(f"Error checking document hash: {e}")
+        logger.error(f"Error checking document hash for {doc_id}: {e}", exc_info=True)
     return False
 
 
@@ -123,7 +126,7 @@ def check_document_hashes_batch(doc_hash_map: dict[str, str]) -> set[str]:
         # Build in-memory set of completed/pending document IDs where hashes match
         return {item["doc_id"] for item in items if item.get("status") in ("COMPLETED", "PENDING") and item.get("content_hash") == doc_hash_map.get(item["doc_id"])}
     except Exception as e:
-        print(f"Error scanning document hashes: {e}")
+        logger.error(f"Error scanning document hashes in DynamoDB: {e}", exc_info=True)
         return set()
 
 
@@ -140,7 +143,7 @@ def update_document_hash(doc_id: str, new_hash: str, status: str = "COMPLETED") 
         table = get_table()
         table.put_item(Item={"doc_id": doc_id, "content_hash": new_hash, "status": status})
     except Exception as e:
-        print(f"Error updating document hash: {e}")
+        logger.error(f"Error updating document hash for {doc_id} to status {status}: {e}", exc_info=True)
 
 
 def delete_document_vectors(doc_id: str) -> None:
@@ -159,7 +162,7 @@ def delete_document_vectors(doc_id: str) -> None:
                 points_selector=Filter(must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))]),
             )
     except Exception as e:
-        print(f"Error deleting document vectors: {e}")
+        logger.error(f"Error deleting document vectors for {doc_id}: {e}", exc_info=True)
 
 
 async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) -> None:
@@ -198,12 +201,14 @@ async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) ->
             field_schema=PayloadSchemaType.KEYWORD,
         )
     except Exception as e:
-        print(f"Payload index creation check warning: {e}")
+        logger.warning(f"Payload index creation check warning: {e}")
 
     # 3. Generate dense embeddings asynchronously in parallel
+    logger.info(f"Generating dense embeddings using model '{settings.embedding_model}'...")
     embeddings = await embedder.embed_documents(chunks)
 
     # 4. Generate sparse embeddings using FastEmbed (bm25) in a thread pool
+    logger.info("Generating sparse BM25 embeddings...")
     sparse_model = get_sparse_model()
     sparse_embeddings = await asyncio.to_thread(lambda sm=sparse_model, bc=chunks: list(sm.embed(bc)))
 
@@ -231,4 +236,6 @@ async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) ->
         )
 
     # 6. Upsert to Qdrant
+    logger.info(f"Upserting {len(points)} points to Qdrant collection '{settings.qdrant_collection}'...")
     client.upsert(collection_name=settings.qdrant_collection, points=points)
+    logger.info(f"Successfully saved {len(chunks)} chunks to Qdrant for document '{doc_id}'.")

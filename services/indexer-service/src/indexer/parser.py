@@ -3,12 +3,15 @@ Document parsing module for downloading and extracting clean text from HTML,
 PDF, and text files.
 """
 
+import logging
 import urllib.request
 
 import boto3
 from langchain_core.documents import Document
 
 from rag_shared.config import get_shared_settings
+
+logger = logging.getLogger(__name__)
 
 LLMS_FULL_URL = "https://docs.langchain.com/llms-full.txt"
 
@@ -36,6 +39,7 @@ def download_raw_docs(url: str = LLMS_FULL_URL) -> str:
     """
     Download raw text content from the target URL with a simple 3-attempt retry.
     """
+    logger.info(f"Downloading raw documents from URL: {url}")
     req = urllib.request.Request(
         url,
         headers={"User-Agent": "Mozilla/5.0"},
@@ -44,9 +48,13 @@ def download_raw_docs(url: str = LLMS_FULL_URL) -> str:
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req) as response:
-                return response.read().decode("utf-8")
+                content = response.read().decode("utf-8")
+                logger.info("Successfully downloaded raw documents.")
+                return content
         except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} to download raw documents failed: {e}")
             if attempt == 2:
+                logger.error("All 3 attempts to download raw documents failed.")
                 raise e
     raise RuntimeError("Failed to download raw docs")
 
@@ -90,5 +98,5 @@ def parse_raw_docs(raw_content: str) -> list[Document]:
             )
         )
 
-    print(f"Loaded {len(documents)} documents")
+    logger.info(f"Parsed and loaded {len(documents)} documents successfully.")
     return documents
