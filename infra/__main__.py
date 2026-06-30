@@ -153,13 +153,14 @@ worker_lambda = aws.lambda_.Function(
     s3_bucket=artifacts_bucket_name,
     s3_key=lambda_s3_key,
     timeout=900,
-    memory_size=512,
+    memory_size=1024,
     environment=aws.lambda_.FunctionEnvironmentArgs(
         variables={
             "s3_bucket": ingestion_bucket.id,
             "aws_region": aws_region,
             "qdrant_host": settings.qdrant_host,
             "qdrant_api_key": settings.qdrant_api_key or "",
+            "HF_HUB_DISABLE_SYMLINKS": "1",
         }
     ),
     tags={

@@ -32,8 +32,14 @@ def get_sparse_model():
     """Lazily loads and returns the FastEmbed BM25 sparse text embedder."""
     global _sparse_model
     if _sparse_model is None:
-        # Set cache path to /tmp/fastembed for write permissions in Lambda environment
-        os.environ["FASTEMBED_CACHE_PATH"] = "/tmp/fastembed"
+        # Check if local pre-bundled cache exists in Lambda task root
+        task_root = os.environ.get("LAMBDA_TASK_ROOT", "")
+        bundled_cache = os.path.join(task_root, "fastembed_cache")
+        if task_root and os.path.exists(bundled_cache):
+            os.environ["FASTEMBED_CACHE_PATH"] = bundled_cache
+        else:
+            # Fallback for local testing or write permission environments
+            os.environ["FASTEMBED_CACHE_PATH"] = "/tmp/fastembed"
         from fastembed import SparseTextEmbedding
 
         _sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
