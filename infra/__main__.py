@@ -228,6 +228,8 @@ crawler_lambda = aws.lambda_.Function(
         variables={
             "s3_bucket": ingestion_bucket.id,
             "aws_region": aws_region,
+            "qdrant_host": settings.qdrant_host,
+            "qdrant_api_key": settings.qdrant_api_key or "",
         }
     ),
     tags={
