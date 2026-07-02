@@ -199,6 +199,7 @@ aws.iam.RolePolicy(
                             "dynamodb:GetItem",
                             "dynamodb:PutItem",
                             "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem",
                             "dynamodb:Scan",
                             "dynamodb:Query",
                             "dynamodb:BatchGetItem",
@@ -207,7 +208,7 @@ aws.iam.RolePolicy(
                         ],
                         "Resource": args[0],
                     },
-                    {"Effect": "Allow", "Action": ["s3:PutObject"], "Resource": f"{args[1]}/*"},
+                    {"Effect": "Allow", "Action": ["s3:PutObject", "s3:DeleteObject"], "Resource": f"{args[1]}/*"},
                 ],
             }
         )
