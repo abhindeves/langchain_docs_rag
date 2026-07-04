@@ -9,7 +9,6 @@ import logging
 from langchain_core.documents import Document
 
 from indexer.chunker import chunk_markdown_docs
-from indexer.crawler import run_crawler
 from indexer.manifest_crawler import run_manifest_crawler
 from indexer.parser import download_from_s3
 from indexer.storage import (
@@ -21,20 +20,6 @@ from indexer.storage import (
 # Configure Logging
 logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def crawl_handler(event, context) -> dict:
-    """
-    Crawler handler triggered by EventBridge cron schedule or manual invocation.
-    Downloads raw document, saves to S3, and dispatches a notification job to SQS.
-    """
-    logger.info("Executing crawler/dispatcher lambda handler...")
-    result = run_crawler()
-    logger.info(f"Crawler/Dispatcher execution complete. Dispatched {result} raw documents to S3.")
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"message": "Crawl executed successfully", "jobs_dispatched": result}),
-    }
 
 
 def master_crawl_handler(event, context) -> dict:

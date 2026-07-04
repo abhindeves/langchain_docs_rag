@@ -3,7 +3,7 @@ import json
 from unittest.mock import MagicMock, call, patch
 
 from botocore.exceptions import ClientError
-from indexer.manifest_crawler import get_sanitized_name, run_manifest_crawler
+from indexer.manifest_crawler import get_sanitized_name, run_manifest_crawler, settings
 from langchain_core.documents import Document
 
 
@@ -177,7 +177,7 @@ def test_manifest_crawler_prune_deleted(mock_download, mock_parse_docs, mock_upd
 
     # Verify that orphaned doc2 was deleted
     mock_delete_vectors.assert_called_once_with("https://example.com/p2")
-    mock_s3.delete_object.assert_called_once_with(Bucket="rag-document-store", Key="raw/pages/p2.json")
+    mock_s3.delete_object.assert_called_once_with(Bucket=settings.s3_bucket, Key="raw/pages/p2.json")
     mock_table.delete_item.assert_called_once_with(Key={"doc_id": "https://example.com/p2"})
 
     # Verify final manifest no longer contains doc2

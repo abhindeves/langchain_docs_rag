@@ -3,23 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, call, patch
 
 # Patch boto3 before importing lambda_handler to avoid real AWS configuration calls
 with patch("boto3.client"), patch("boto3.resource"):
-    from indexer.lambda_handler import crawl_handler, master_crawl_handler, worker_handler
-
-
-@patch("indexer.lambda_handler.run_crawler")
-def test_crawl_handler(mock_run_crawler):
-    # Arrange
-    mock_run_crawler.return_value = 42
-
-    # Act
-    response = crawl_handler({}, None)
-
-    # Assert
-    assert response["statusCode"] == 200
-    body = json.loads(response["body"])
-    assert body["message"] == "Crawl executed successfully"
-    assert body["jobs_dispatched"] == 42
-    mock_run_crawler.assert_called_once()
+    from indexer.lambda_handler import master_crawl_handler, worker_handler
 
 
 @patch("indexer.lambda_handler.download_from_s3")
