@@ -3,7 +3,7 @@ import json
 from unittest.mock import MagicMock, call, patch
 
 from botocore.exceptions import ClientError
-from indexer.manifest_crawler import run_manifest_crawler
+from indexer.manifest_crawler import get_sanitized_name, run_manifest_crawler
 from langchain_core.documents import Document
 
 
@@ -47,8 +47,8 @@ def test_manifest_crawler_fresh_run(mock_download, mock_parse_docs, mock_update_
     )
 
     # Verify the manifest was uploaded with correct content
-    target_url_hash = hashlib.md5(target_url.encode("utf-8")).hexdigest()
-    expected_manifest_key = f"manifests/{target_url_hash}.json"
+    target_url_name = get_sanitized_name(target_url)
+    expected_manifest_key = f"manifests/{target_url_name}.json"
 
     # Grab manifest upload payload
     manifest_call = None
@@ -127,8 +127,8 @@ def test_manifest_crawler_with_updates(mock_download, mock_parse_docs, mock_upda
     mock_update_hash.assert_called_once_with("https://example.com/p2", new_hash2, status="PENDING")
 
     # Verify manifest was uploaded with updated hash for doc2
-    target_url_hash = hashlib.md5(target_url.encode("utf-8")).hexdigest()
-    expected_manifest_key = f"manifests/{target_url_hash}.json"
+    target_url_name = get_sanitized_name(target_url)
+    expected_manifest_key = f"manifests/{target_url_name}.json"
 
     manifest_call = None
     for c in mock_s3.put_object.call_args_list:
@@ -181,8 +181,8 @@ def test_manifest_crawler_prune_deleted(mock_download, mock_parse_docs, mock_upd
     mock_table.delete_item.assert_called_once_with(Key={"doc_id": "https://example.com/p2"})
 
     # Verify final manifest no longer contains doc2
-    target_url_hash = hashlib.md5(target_url.encode("utf-8")).hexdigest()
-    expected_manifest_key = f"manifests/{target_url_hash}.json"
+    target_url_name = get_sanitized_name(target_url)
+    expected_manifest_key = f"manifests/{target_url_name}.json"
 
     manifest_call = None
     for c in mock_s3.put_object.call_args_list:

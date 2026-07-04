@@ -6,7 +6,9 @@ uploading, and pruning raw documents.
 import hashlib
 import json
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
 
 import boto3
 from botocore.exceptions import ClientError
@@ -66,13 +68,26 @@ def _upload_to_s3(bucket: str, key: str, content: str) -> None:
     )
 
 
-def _upload_and_mark_pending(doc, doc_id: str, content_hash: str, target_url_hash: str) -> str:
+def get_sanitized_name(url: str) -> str:
+    """
+    Converts a URL to a safe, human-readable S3 directory / filename prefix.
+    Replaces non-alphanumeric characters (like slashes, colons, dots) with underscores.
+    """
+    parsed = urlparse(url)
+    combined = f"{parsed.netloc}{parsed.path}"
+    # Replace anything that isn't a letter, number, hyphen, or underscore with a single underscore
+    sanitized = re.sub(r"[^a-zA-Z0-9_\-]", "_", combined)
+    # Remove duplicate underscores and strip trailing/leading ones
+    return re.sub(r"_+", "_", sanitized).strip("_")
+
+
+def _upload_and_mark_pending(doc, doc_id: str, content_hash: str, target_url_name: str) -> str:
     """
     Uploads the document to S3 and updates its sync status to PENDING in DynamoDB.
     Returns the s3_key where the document was stored.
     """
     hashed_filename = hashlib.md5(doc_id.encode("utf-8")).hexdigest()
-    s3_key = f"raw/pages/{target_url_hash}/{hashed_filename}.json"
+    s3_key = f"raw/pages/{target_url_name}/{hashed_filename}.json"
 
     doc_payload = {
         "doc_id": doc_id,
@@ -97,14 +112,14 @@ def _upload_and_mark_pending(doc, doc_id: str, content_hash: str, target_url_has
 def run_manifest_crawler(target_url: str) -> int:
     """
     Downloads raw documentation, parses pages, hashes content,
-    and deduplicates using an S3 manifest file (manifests/{target_url_hash}.json).
+    and deduplicates using an S3 manifest file (manifests/{target_url_name}.json).
     Prunes stale pages using the manifest and saves the updated manifest back to S3.
     """
     logger.info(f"Starting manifest crawler for URL: {target_url}")
 
-    # 1. Determine the manifest key in S3 based on the hash of target_url
-    target_url_hash = hashlib.md5(target_url.encode("utf-8")).hexdigest()
-    manifest_key = f"manifests/{target_url_hash}.json"
+    # 1. Determine the manifest key in S3 based on the sanitized target_url name
+    target_url_name = get_sanitized_name(target_url)
+    manifest_key = f"manifests/{target_url_name}.json"
 
     # 2. Fetch the current manifest state from S3
     manifest = _get_manifest(settings.s3_bucket, manifest_key)
@@ -125,7 +140,7 @@ def run_manifest_crawler(target_url: str) -> int:
         # Define a task for executor
         def process_upload(task):
             doc_obj, d_id, c_hash = task
-            s3_k = _upload_and_mark_pending(doc_obj, d_id, c_hash, target_url_hash)
+            s3_k = _upload_and_mark_pending(doc_obj, d_id, c_hash, target_url_name)
             return d_id, {"hash": c_hash, "s3_key": s3_k}
 
         with ThreadPoolExecutor(max_workers=20) as executor:
