@@ -10,6 +10,7 @@ from langchain_core.documents import Document
 
 from indexer.chunker import chunk_markdown_docs
 from indexer.crawler import run_crawler
+from indexer.manifest_crawler import run_manifest_crawler
 from indexer.parser import download_from_s3
 from indexer.storage import (
     check_document_hash,
@@ -33,6 +34,37 @@ def crawl_handler(event, context) -> dict:
     return {
         "statusCode": 200,
         "body": json.dumps({"message": "Crawl executed successfully", "jobs_dispatched": result}),
+    }
+
+
+def manifest_crawl_handler(event, context) -> dict:
+    """
+    Manifest-based Crawler handler triggered manually or via SQS.
+    Deduplicates using an S3 manifest file and updates status to PENDING in DynamoDB.
+    """
+    logger.info("Executing manifest-based crawler lambda handler...")
+
+    target_url = "https://docs.langchain.com/llms-full.txt"
+    if isinstance(event, dict):
+        if "target_url" in event:
+            target_url = event["target_url"]
+        elif "Records" in event and len(event["Records"]) > 0:
+            # Check for SQS payload
+            try:
+                body = json.loads(event["Records"][0]["body"])
+                if isinstance(body, dict) and "target_url" in body:
+                    target_url = body["target_url"]
+                elif isinstance(body, str):
+                    target_url = body
+            except Exception as parse_err:
+                logger.warning(f"Failed to parse SQS body as JSON, using raw body: {parse_err}")
+                target_url = event["Records"][0]["body"]
+
+    result = run_manifest_crawler(target_url)
+    logger.info(f"Manifest Crawler execution complete. Dispatched {result} raw documents.")
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": "Manifest crawl executed successfully", "jobs_dispatched": result}),
     }
 
 

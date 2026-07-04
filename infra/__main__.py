@@ -239,6 +239,83 @@ crawler_lambda = aws.lambda_.Function(
     },
 )
 
+# --- Manifest Crawler Lambda IAM Role & Policies ---
+manifest_crawler_role = aws.iam.Role(
+    "manifest-crawler-lambda-role",
+    assume_role_policy=json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": "sts:AssumeRole",
+                    "Effect": "Allow",
+                    "Principal": {"Service": "lambda.amazonaws.com"},
+                }
+            ],
+        }
+    ),
+)
+
+aws.iam.RolePolicyAttachment(
+    "manifest-crawler-lambda-basic",
+    role=manifest_crawler_role.name,
+    policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+)
+
+aws.iam.RolePolicy(
+    "manifest-crawler-lambda-permissions",
+    role=manifest_crawler_role.name,
+    policy=pulumi.Output.all(sync_table.arn, ingestion_bucket.arn).apply(
+        lambda args: json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem",
+                            "dynamodb:DescribeTable",
+                        ],
+                        "Resource": args[0],
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+                        "Resource": f"{args[1]}/*",
+                    },
+                ],
+            }
+        )
+    ),
+)
+
+# --- Manifest Crawler Lambda Function ---
+manifest_crawler_lambda = aws.lambda_.Function(
+    "manifest-crawler-lambda",
+    runtime="python3.12",
+    role=manifest_crawler_role.arn,
+    handler="indexer.lambda_handler.manifest_crawl_handler",
+    s3_bucket=artifacts_bucket_name,
+    s3_key=lambda_s3_key,
+    timeout=300,
+    memory_size=256,
+    environment=aws.lambda_.FunctionEnvironmentArgs(
+        variables={
+            "s3_bucket": ingestion_bucket.id,
+            "aws_region": aws_region,
+            "qdrant_host": settings.qdrant_host,
+            "qdrant_api_key": settings.qdrant_api_key or "",
+        }
+    ),
+    tags={
+        "Environment": "dev",
+        "Project": "rag-ingestion",
+    },
+)
+
 # --- EventBridge Scheduler Trigger ---
 cron_rule = aws.cloudwatch.EventRule(
     "crawler-cron-rule",
@@ -262,3 +339,4 @@ pulumi.export("dynamodb_table_name", sync_table.name)
 pulumi.export("ingestion_queue_url", ingestion_queue.id)
 pulumi.export("worker_lambda_arn", worker_lambda.arn)
 pulumi.export("crawler_lambda_arn", crawler_lambda.arn)
+pulumi.export("manifest_crawler_lambda_arn", manifest_crawler_lambda.arn)
