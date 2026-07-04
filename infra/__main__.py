@@ -334,7 +334,7 @@ manifest_crawler_lambda = aws.lambda_.Function(
     s3_bucket=artifacts_bucket_name,
     s3_key=lambda_s3_key,
     timeout=300,
-    memory_size=256,
+    memory_size=512,
     environment=aws.lambda_.FunctionEnvironmentArgs(
         variables={
             "s3_bucket": ingestion_bucket.id,
@@ -408,7 +408,7 @@ master_crawler_lambda = aws.lambda_.Function(
     s3_bucket=artifacts_bucket_name,
     s3_key=lambda_s3_key,
     timeout=60,
-    memory_size=128,
+    memory_size=512,
     environment=aws.lambda_.FunctionEnvironmentArgs(
         variables={
             "CRAWLER_QUEUE_URL": crawler_queue.id,
