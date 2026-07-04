@@ -74,6 +74,33 @@ ingestion_queue = aws.sqs.Queue(
     },
 )
 
+# Crawler SQS Queue with Dead-Letter Queue (DLQ)
+crawler_dlq = aws.sqs.Queue(
+    "rag-crawler-dlq",
+    tags={
+        "Environment": "dev",
+        "Project": "rag-ingestion",
+    },
+)
+
+crawler_queue = aws.sqs.Queue(
+    "rag-crawler-queue",
+    visibility_timeout_seconds=300,  # Match manifest crawler timeout (5 mins)
+    redrive_policy=crawler_dlq.arn.apply(
+        lambda arn: json.dumps(
+            {
+                "deadLetterTargetArn": arn,
+                "maxReceiveCount": 3,
+            }
+        )
+    ),
+    tags={
+        "Environment": "dev",
+        "Project": "rag-ingestion",
+    },
+)
+
+
 # SQS Queue Policy to allow S3 events
 queue_policy = aws.sqs.QueuePolicy(
     "rag-ingestion-queue-policy",
@@ -262,6 +289,12 @@ aws.iam.RolePolicyAttachment(
     policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
 )
 
+aws.iam.RolePolicyAttachment(
+    "manifest-crawler-lambda-sqs",
+    role=manifest_crawler_role.name,
+    policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole",
+)
+
 aws.iam.RolePolicy(
     "manifest-crawler-lambda-permissions",
     role=manifest_crawler_role.name,
@@ -316,6 +349,78 @@ manifest_crawler_lambda = aws.lambda_.Function(
     },
 )
 
+# SQS to Manifest Crawler Lambda Trigger
+aws.lambda_.EventSourceMapping(
+    "manifest-crawler-sqs-mapping",
+    event_source_arn=crawler_queue.arn,
+    function_name=manifest_crawler_lambda.name,
+    batch_size=1,
+)
+
+# --- Master Crawler Lambda IAM Role & Policies ---
+master_crawler_role = aws.iam.Role(
+    "master-crawler-lambda-role",
+    assume_role_policy=json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": "sts:AssumeRole",
+                    "Effect": "Allow",
+                    "Principal": {"Service": "lambda.amazonaws.com"},
+                }
+            ],
+        }
+    ),
+)
+
+aws.iam.RolePolicyAttachment(
+    "master-crawler-lambda-basic",
+    role=master_crawler_role.name,
+    policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+)
+
+aws.iam.RolePolicy(
+    "master-crawler-lambda-permissions",
+    role=master_crawler_role.name,
+    policy=crawler_queue.arn.apply(
+        lambda queue_arn: json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": ["sqs:SendMessage"],
+                        "Resource": queue_arn,
+                    }
+                ],
+            }
+        )
+    ),
+)
+
+# --- Master Crawler Lambda Function ---
+master_crawler_lambda = aws.lambda_.Function(
+    "master-crawler-lambda",
+    runtime="python3.12",
+    role=master_crawler_role.arn,
+    handler="indexer.lambda_handler.master_crawl_handler",
+    s3_bucket=artifacts_bucket_name,
+    s3_key=lambda_s3_key,
+    timeout=60,
+    memory_size=128,
+    environment=aws.lambda_.FunctionEnvironmentArgs(
+        variables={
+            "CRAWLER_QUEUE_URL": crawler_queue.id,
+            "TARGET_URLS": "https://docs.langchain.com/llms-full.txt",
+        }
+    ),
+    tags={
+        "Environment": "dev",
+        "Project": "rag-ingestion",
+    },
+)
+
 # --- EventBridge Scheduler Trigger ---
 cron_rule = aws.cloudwatch.EventRule(
     "crawler-cron-rule",
@@ -326,9 +431,9 @@ cron_rule = aws.cloudwatch.EventRule(
     },
 )
 
-cron_target = aws.cloudwatch.EventTarget("crawler-cron-target", rule=cron_rule.name, arn=crawler_lambda.arn)
+cron_target = aws.cloudwatch.EventTarget("crawler-cron-target", rule=cron_rule.name, arn=master_crawler_lambda.arn)
 
-aws.lambda_.Permission("crawler-cron-permission", action="lambda:InvokeFunction", function=crawler_lambda.name, principal="events.amazonaws.com", source_arn=cron_rule.arn)
+aws.lambda_.Permission("crawler-cron-permission", action="lambda:InvokeFunction", function=master_crawler_lambda.name, principal="events.amazonaws.com", source_arn=cron_rule.arn)
 
 
 # =============================================================================
@@ -340,3 +445,5 @@ pulumi.export("ingestion_queue_url", ingestion_queue.id)
 pulumi.export("worker_lambda_arn", worker_lambda.arn)
 pulumi.export("crawler_lambda_arn", crawler_lambda.arn)
 pulumi.export("manifest_crawler_lambda_arn", manifest_crawler_lambda.arn)
+pulumi.export("master_crawler_lambda_arn", master_crawler_lambda.arn)
+pulumi.export("crawler_queue_url", crawler_queue.id)

@@ -1,9 +1,9 @@
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 # Patch boto3 before importing lambda_handler to avoid real AWS configuration calls
 with patch("boto3.client"), patch("boto3.resource"):
-    from indexer.lambda_handler import crawl_handler, worker_handler
+    from indexer.lambda_handler import crawl_handler, master_crawl_handler, worker_handler
 
 
 @patch("indexer.lambda_handler.run_crawler")
@@ -149,4 +149,61 @@ def test_worker_handler_retry_exhaustion_failure(mock_update_hash, mock_download
         "https://example.com/doc1",
         "old-hash",
         status="FAILED",
+    )
+
+
+@patch("os.environ", {"CRAWLER_QUEUE_URL": "https://sqs.ap-south-1.amazonaws.com/12345/test-queue", "TARGET_URLS": "https://example.com/doc1,https://example.com/doc2"})
+@patch("boto3.client")
+def test_master_crawl_handler(mock_boto_client):
+    # Arrange
+    mock_sqs = MagicMock()
+    mock_boto_client.return_value = mock_sqs
+
+    # Act
+    response = master_crawl_handler({}, None)
+
+    # Assert
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert "Dispatched 2/2 jobs" in body["message"]
+    assert body["dispatched_count"] == 2
+
+    # Verify SQS send_message calls
+    assert mock_sqs.send_message.call_count == 2
+    mock_sqs.send_message.assert_has_calls(
+        [
+            call(
+                QueueUrl="https://sqs.ap-south-1.amazonaws.com/12345/test-queue",
+                MessageBody=json.dumps({"target_url": "https://example.com/doc1"}),
+            ),
+            call(
+                QueueUrl="https://sqs.ap-south-1.amazonaws.com/12345/test-queue",
+                MessageBody=json.dumps({"target_url": "https://example.com/doc2"}),
+            ),
+        ],
+        any_order=True,
+    )
+
+
+@patch("os.environ", {"CRAWLER_QUEUE_URL": "https://sqs.ap-south-1.amazonaws.com/12345/test-queue", "TARGET_URLS": "https://example.com/doc1"})
+@patch("boto3.client")
+def test_master_crawl_handler_event_override(mock_boto_client):
+    # Arrange
+    mock_sqs = MagicMock()
+    mock_boto_client.return_value = mock_sqs
+
+    # Act
+    event = {"target_urls": "https://example.com/doc_override"}
+    response = master_crawl_handler(event, None)
+
+    # Assert
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert "Dispatched 1/1 jobs" in body["message"]
+    assert body["dispatched_count"] == 1
+
+    # Verify SQS send_message called with overridden URL
+    mock_sqs.send_message.assert_called_once_with(
+        QueueUrl="https://sqs.ap-south-1.amazonaws.com/12345/test-queue",
+        MessageBody=json.dumps({"target_url": "https://example.com/doc_override"}),
     )

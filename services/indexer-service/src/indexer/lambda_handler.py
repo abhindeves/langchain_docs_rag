@@ -37,6 +37,56 @@ def crawl_handler(event, context) -> dict:
     }
 
 
+def master_crawl_handler(event, context) -> dict:
+    """
+    Master Crawler handler triggered by EventBridge cron schedule or manual invocation.
+    Reads a list of target URLs, and dispatches an SQS message for each target URL.
+    """
+    logger.info("Executing master crawler lambda handler...")
+    import os
+
+    import boto3
+
+    # 1. Resolve SQS queue URL
+    queue_url = os.environ.get("CRAWLER_QUEUE_URL")
+    if not queue_url:
+        logger.error("CRAWLER_QUEUE_URL environment variable is not configured.")
+        raise ValueError("CRAWLER_QUEUE_URL environment variable is missing.")
+
+    # 2. Resolve target URLs
+    # Reads from environment variable or event body, falls back to langchain docs URL
+    target_urls_str = os.environ.get("TARGET_URLS", "https://docs.langchain.com/llms-full.txt")
+    if isinstance(event, dict) and "target_urls" in event:
+        # Support passing a list of URLs in the event payload
+        urls = event["target_urls"]
+        if isinstance(urls, str):
+            urls = [url.strip() for url in urls.split(",") if url.strip()]
+    else:
+        urls = [url.strip() for url in target_urls_str.split(",") if url.strip()]
+
+    logger.info(f"Resolved {len(urls)} target URLs to dispatch: {urls}")
+
+    # 3. Dispatch each URL to the Crawler SQS Queue
+    sqs_client = boto3.client("sqs")
+    dispatched_count = 0
+
+    for url in urls:
+        try:
+            logger.info(f"Dispatching crawl job to SQS for URL: {url}")
+            sqs_client.send_message(
+                QueueUrl=queue_url,
+                MessageBody=json.dumps({"target_url": url}),
+            )
+            dispatched_count += 1
+        except Exception as e:
+            logger.error(f"Failed to dispatch crawl job for URL {url}: {e}", exc_info=True)
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": f"Master crawl dispatch complete. Dispatched {dispatched_count}/{len(urls)} jobs.", "dispatched_count": dispatched_count}),
+    }
+
+
 def manifest_crawl_handler(event, context) -> dict:
     """
     Manifest-based Crawler handler triggered manually or via SQS.
