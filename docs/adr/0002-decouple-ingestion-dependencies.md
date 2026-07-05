@@ -74,12 +74,12 @@ We chose to evolve the ingestion pipeline proactively by removing LangChain and 
 
 ### Ingestion Optimization Metrics
 
-| Metric | Before Decoupling | After Decoupling | Optimization Delta |
-| :--- | :--- | :--- | :--- |
-| **Ingestion Lambda Zip Size** | **85.7 MB** | **41.9 MB** | **-51%** (Reduced package size) |
-| **Lambda Memory Footprint** | ~280 MB | **~50 MB** | **-82%** (Memory freed from ONNX Runtime) |
-| **Lambda Cold Start Latency** | ~5.8 seconds | **< 200 ms** | **-96%** (Eliminated dependency loading) |
-| **Ingestion Scalability** | Limits at ~10k docs (timeouts) | Concurrency-ready (100k+ docs) | **Stabilized** (DB-offloaded calculations) |
+| Metric | Before Decoupling | After Decoupling | Excluded SDKs (Final) | Cumulative Change |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ingestion Lambda Zip Size** | **85.7 MB** | **41.9 MB** | **27.0 MB** | **-68.5%** (Reduced size) |
+| **Lambda Memory Footprint** | ~280 MB | **~50 MB** | **~50 MB** | **-82%** (ONNX freed) |
+| **Lambda Cold Start Latency** | ~5.8 seconds | **< 200 ms** | **< 200 ms** | **-96%** (Lean imports) |
+| **Ingestion Scalability** | Limits at ~10k docs | Ready (100k+ docs) | Ready (100k+ docs) | **Stabilized** (DB-offloaded) |
 
 ### Neutral / Trade-off Impact:
 * **Qdrant Server Load:** BM25 generation is now performed by the Qdrant cluster CPU. Because BM25 is a lightweight lexical algorithm rather than a neural network, this is handled easily by standard Qdrant cluster resources.
