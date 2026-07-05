@@ -60,10 +60,15 @@ async def test_save_chunks_to_qdrant(mock_embedder, mock_get_client, mock_delete
     from qdrant_client.models import Document, PointStruct
 
     assert isinstance(point, PointStruct)
-    assert point.vector["dense_vector"] == [0.1] * 1024
+    vector = point.vector
+    assert isinstance(vector, dict)
+    assert vector["dense_vector"] == [0.1] * 1024
 
-    sparse_doc = point.vector["bm25_sparse_vector"]
+    sparse_doc = vector["bm25_sparse_vector"]
     assert isinstance(sparse_doc, Document)
     assert sparse_doc.text == "chunk content"
     assert sparse_doc.model == "Qdrant/bm25"
-    assert point.payload["doc_id"] == "doc1"
+
+    payload = point.payload
+    assert payload is not None
+    assert payload["doc_id"] == "doc1"
