@@ -1,0 +1,37 @@
+# .coderabbit.yaml
+language: "en-US"
+early_access: false
+reviews:
+  # The profile dictates the tone and strictness of the review (chill, assertive, etc.)
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_walkthrough: false
+
+  # Custom instructions based on the directory structure of this monorepo
+  path_instructions:
+    - path: "services/**/src/**/*.py"
+      instructions: |
+        - This is a Python AWS Lambda or FastAPI microservice.
+        - Ensure error handling logs the exceptions appropriately using the `logging` module before raising or returning.
+        - Validate that environment variables are read safely with fallbacks.
+        - Boto3 clients and Qdrant clients should ideally be initialized outside the main handler for warm-start reuse.
+        - Prefer Pydantic models for all API request/response validation.
+        - We use asynchronous execution where possible (`async`/`await`).
+
+    - path: "shared-lib/src/**/*.py"
+      instructions: |
+        - This is shared library code imported by multiple microservices.
+        - Ensure backwards compatibility on interfaces to avoid breaking downstream Lambdas.
+        - Do not introduce service-specific business logic here. Keep it generic.
+
+    - path: "infra/**/*.py"
+      instructions: |
+        - This is Pulumi Infrastructure as Code (IaC) written in Python.
+        - Ensure that new AWS IAM roles and policies strictly follow the least-privilege principle.
+        - Verify that Lambda function code uses `pulumi.FileArchive` instead of raw S3 buckets.
+
+chat:
+  auto_reply: true
