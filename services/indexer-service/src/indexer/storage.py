@@ -117,27 +117,6 @@ def check_document_hash(doc_id: str, new_hash: str) -> bool:
     return False
 
 
-def check_document_hashes_batch(doc_hash_map: dict[str, str]) -> set[str]:
-    """
-    Scans DynamoDB once and returns a set of document IDs that are already completed
-    and unchanged. Highly performant and simple.
-    """
-    try:
-        table = get_table()
-        # Scan only the key fields. 'status' is an AWS reserved keyword, so we alias it to #s
-        response = table.scan(
-            ProjectionExpression="doc_id, content_hash, #s",
-            ExpressionAttributeNames={"#s": "status"},
-        )
-        items = response.get("Items", [])
-
-        # Build in-memory set of completed/pending document IDs where hashes match
-        return {item["doc_id"] for item in items if item.get("status") in ("COMPLETED", "PENDING") and item.get("content_hash") == doc_hash_map.get(item["doc_id"])}
-    except Exception as e:
-        logger.error(f"Error scanning document hashes in DynamoDB: {e}", exc_info=True)
-        return set()
-
-
 def update_document_hash(doc_id: str, new_hash: str, status: str = "COMPLETED") -> None:
     """
     Updates or inserts the document sync status and hash in DynamoDB.
@@ -195,7 +174,7 @@ async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) ->
     if not client.collection_exists(settings.qdrant_collection):
         client.create_collection(
             collection_name=settings.qdrant_collection,
-            vectors_config={"dense_vector": {"size": 1024, "distance": "Cosine"}},
+            vectors_config={"dense_vector": {"size": settings.embedding_dimension, "distance": "Cosine"}},
             sparse_vectors_config={"bm25_sparse_vector": {"modifier": "idf"}},
         )
 

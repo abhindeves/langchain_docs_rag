@@ -12,6 +12,7 @@ class SharedSettings:
         self.s3_bucket = os.environ.get("S3_BUCKET", os.environ.get("s3_bucket", "rag-document-store"))
         self.sqs_queue_url = os.environ.get("SQS_QUEUE_URL", os.environ.get("sqs_queue_url", "rag-ingestion-queue"))
         self.qdrant_collection = os.environ.get("QDRANT_COLLECTION", os.environ.get("qdrant_collection", "documents"))
+        self.embedding_dimension = int(os.environ.get("EMBEDDING_DIMENSION", os.environ.get("embedding_dimension", 1024)))
 
 
 def get_shared_settings() -> SharedSettings:

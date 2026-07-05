@@ -11,6 +11,7 @@ class Embedder:
     def __init__(self):
         settings = get_shared_settings()
         self.model_id = settings.embedding_model
+        self.embedding_dimension = settings.embedding_dimension
 
         # Configure Boto3 to use adaptive rate-limiting and retries
         config = Config(
@@ -28,7 +29,7 @@ class Embedder:
 
     def _embed_query_sync(self, text: str) -> list[float]:
         """Synchronous worker that performs the actual blocking API call."""
-        payload = {"inputText": text, "dimensions": 1024, "normalize": True}
+        payload = {"inputText": text, "dimensions": self.embedding_dimension, "normalize": True}
         response = self.client.invoke_model(
             body=json.dumps(payload),
             modelId=self.model_id,

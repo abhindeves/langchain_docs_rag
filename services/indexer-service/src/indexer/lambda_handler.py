@@ -183,9 +183,13 @@ def worker_handler(event, context) -> dict:
                 logger.warning(f"SQS record ID {record.get('messageId')} failed attempt {receive_count}/3.")
                 if receive_count >= 3:
                     body = json.loads(record["body"])
-                    s3_info = body["Records"][0]["s3"]
-                    s3_bucket = s3_info["bucket"]["name"]
-                    s3_key = s3_info["object"]["key"]
+                    if "Records" in body and len(body["Records"]) > 0 and "s3" in body["Records"][0]:
+                        s3_info = body["Records"][0]["s3"]
+                        s3_bucket = s3_info["bucket"]["name"]
+                        s3_key = s3_info["object"]["key"]
+                    else:
+                        s3_bucket = body.get("s3_bucket")
+                        s3_key = body.get("s3_key")
                     try:
                         # Try to download and parse the JSON file to get doc_id and hash
                         logger.warning(f"SQS attempts exceeded threshold. Marking document status as FAILED for source coordinates: s3://{s3_bucket}/{s3_key}")
