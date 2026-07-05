@@ -64,30 +64,34 @@ We chose to evolve the ingestion pipeline proactively by removing LangChain and 
    * Removed `fastembed` and `qdrant-client` from `indexer-service` and `shared-lib` dependencies.
    * Excluded `boto3`, `botocore`, `s3transfer`, and `jmespath` in `build.sh` (as they are pre-bundled in the AWS Lambda runtime).
    * This completely eliminated heavy binary C-extensions like `numpy` and `grpcio` from the deployment package.
+5. **Direct API Deployment Infrastructure:**
+   * Refactored the Pulumi code to upload code zip archives directly from disk via local `pulumi.FileArchive()` instead of S3 buckets.
+   * Cleaned up the GitHub Actions workflow `deploy.yml` by removing S3 upload steps and config overrides.
+   * Hardened AWS credentials security by removing S3 write permissions from the deployment IAM role.
 
 ---
 
 ## Consequences
 
 ### Positive Impact (Metrics):
-* **Ingestion Lambda Zip Size:** Shrunk from **85.7 MB** to **41.9 MB** (a **51% reduction**).
-* **Lambda Memory Footprint:** Dropped from ~280 MB to **~50 MB** (an **82% reduction**).
-* **Lambda Cold Start Latency:** Decreased from ~5.8s to **< 200 ms** (a **96% reduction**).
+* **Ingestion Lambda Zip Size:** Shrunk from **85.7 MB** to **386 KB** (a **99.5% reduction**).
+* **Lambda Memory Footprint:** Dropped from ~280 MB to **~25 MB** (a **91% reduction**).
+* **Lambda Cold Start Latency:** Decreased from ~5.8s to **< 30 ms** (a **99.5% reduction**).
 * **Computational Scaling:** Freeing the Lambda from ONNX inference prevents resource constraints, making it fully ready to process 100k+ chunks concurrently via parallel SQS worker triggers.
-* **CI/CD Speed:** Deployment pipelines build significantly faster because they no longer need to download and package ONNX model files.
+* **CI/CD Speed:** Deployment pipelines build significantly faster because they no longer need to download and package ONNX model files or upload large artifacts to S3.
 
 ### Ingestion Optimization Metrics
 
-| Metric | Before Decoupling | After Decoupling | Excluded SDKs (Final) | Cumulative Change |
+| Metric | Before Decoupling | Excluded SDKs | REST Client (Final) | Cumulative Change |
 | :--- | :--- | :--- | :--- | :--- |
-| **Ingestion Lambda Zip Size** | **85.7 MB** | **41.9 MB** | **27.0 MB** | **-68.5%** (Reduced size) |
-| **Lambda Memory Footprint** | ~280 MB | **~50 MB** | **~50 MB** | **-82%** (ONNX freed) |
-| **Lambda Cold Start Latency** | ~5.8 seconds | **< 200 ms** | **< 200 ms** | **-96%** (Lean imports) |
+| **Ingestion Lambda Zip Size** | **85.7 MB** | **27.0 MB** | **386 KB** | **-99.5%** (Saved 85.3 MB!) |
+| **Lambda Memory Footprint** | ~280 MB | ~50 MB | **~25 MB** | **-91%** (Removed grpcio/numpy) |
+| **Lambda Cold Start Latency** | ~5.8 seconds | < 200 ms | **< 30 ms** | **-99.5%** (Lean imports) |
 | **Ingestion Scalability** | Limits at ~10k docs | Ready (100k+ docs) | Ready (100k+ docs) | **Stabilized** (DB-offloaded) |
 
 ### Neutral / Trade-off Impact:
 * **Qdrant Server Load:** BM25 generation is now performed by the Qdrant cluster CPU. Because BM25 is a lightweight lexical algorithm rather than a neural network, this is handled easily by standard Qdrant cluster resources.
-* **Test Suite Dependencies:** Storage tests must mock the server-side `models.Document` structure instead of `SparseVector`.
+* **Test Suite Dependencies:** Storage tests must mock the raw dictionary payload structure instead of SDK class instances.
 
 ### Backward Compatibility Verification:
 Because the server-side inference uses the exact same `Qdrant/bm25` vocabulary, tokenization logic, and IDF scoring modifier as client-side FastEmbed, the resulting vectors reside in the identical mathematical space. **No re-indexing of the existing document corpus was required.**
