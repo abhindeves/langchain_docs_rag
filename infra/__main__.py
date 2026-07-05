@@ -11,12 +11,8 @@ from rag_shared.config import get_shared_settings
 
 settings = get_shared_settings()
 
-# Retrieve stack configurations for artifacts bucket & key
-config = pulumi.Config()
+# Retrieve stack configurations
 aws_config = pulumi.Config("aws")
-
-artifacts_bucket_name = config.get("artifacts_bucket") or "rag-document-store-57d6fd4"
-lambda_s3_key = config.get("lambda_s3_key") or "lambda_function.zip"
 aws_region = aws_config.require("region")
 
 
@@ -177,8 +173,7 @@ worker_lambda = aws.lambda_.Function(
     runtime="python3.12",
     role=worker_role.arn,
     handler="indexer.lambda_handler.worker_handler",
-    s3_bucket=artifacts_bucket_name,
-    s3_key=lambda_s3_key,
+    code=pulumi.FileArchive("../services/indexer-service/lambda_function.zip"),
     timeout=900,
     memory_size=1024,
     environment=aws.lambda_.FunctionEnvironmentArgs(
@@ -270,8 +265,7 @@ manifest_crawler_lambda = aws.lambda_.Function(
     runtime="python3.12",
     role=manifest_crawler_role.arn,
     handler="indexer.lambda_handler.manifest_crawl_handler",
-    s3_bucket=artifacts_bucket_name,
-    s3_key=lambda_s3_key,
+    code=pulumi.FileArchive("../services/indexer-service/lambda_function.zip"),
     timeout=300,
     memory_size=512,
     environment=aws.lambda_.FunctionEnvironmentArgs(
@@ -344,8 +338,7 @@ master_crawler_lambda = aws.lambda_.Function(
     runtime="python3.12",
     role=master_crawler_role.arn,
     handler="indexer.lambda_handler.master_crawl_handler",
-    s3_bucket=artifacts_bucket_name,
-    s3_key=lambda_s3_key,
+    code=pulumi.FileArchive("../services/indexer-service/lambda_function.zip"),
     timeout=60,
     memory_size=512,
     environment=aws.lambda_.FunctionEnvironmentArgs(

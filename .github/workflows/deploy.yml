@@ -45,10 +45,6 @@ jobs:
           role-to-assume: arn:aws:iam::422600867909:role/github-actions-deploy-role
           aws-region: ap-south-1
 
-      - name: Upload Zip to S3
-        run: |
-          aws s3 cp services/indexer-service/lambda_function.zip s3://my-rag-artifacts-bucket/lambda_function_${{ github.sha }}.zip
-
       - name: Install Pulumi CLI
         uses: pulumi/setup-pulumi@v2
 
@@ -57,7 +53,6 @@ jobs:
           cd infra
           pulumi login s3://abhin-pulumi-state-bucket
           pulumi stack select dev
-          pulumi config set lambda_s3_key lambda_function_${{ github.sha }}.zip
           pulumi up --yes
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
