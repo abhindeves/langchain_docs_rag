@@ -5,7 +5,6 @@ description = "Shared RAG Utilities"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.43.34",
-    "qdrant-client>=1.18.0",
 ]
 
 [build-system]

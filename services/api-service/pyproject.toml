@@ -6,7 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
     "shared-lib",
     "fastapi",
-    "uvicorn"
+    "uvicorn",
+    "qdrant-client>=1.18.0"
 ]
 
 [build-system]

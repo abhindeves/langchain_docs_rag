@@ -53,6 +53,7 @@ version = "0.1.0"
 source = { editable = "services/api-service" }
 dependencies = [
     { name = "fastapi" },
+    { name = "qdrant-client" },
     { name = "shared-lib" },
     { name = "uvicorn" },
 ]
@@ -60,6 +61,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi" },
+    { name = "qdrant-client", specifier = ">=1.18.0" },
     { name = "shared-lib", editable = "shared-lib" },
     { name = "uvicorn" },
 ]
@@ -966,14 +968,10 @@ version = "0.1.0"
 source = { editable = "shared-lib" }
 dependencies = [
     { name = "boto3" },
-    { name = "qdrant-client" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "boto3", specifier = ">=1.43.34" },
-    { name = "qdrant-client", specifier = ">=1.18.0" },
-]
+requires-dist = [{ name = "boto3", specifier = ">=1.43.34" }]
 
 [[package]]
 name = "six"
