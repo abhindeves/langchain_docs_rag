@@ -13,7 +13,7 @@ The initial RAG ingestion pipeline relied on heavy third-party framework SDKs in
 2. **FastEmbed (`fastembed` & `onnxruntime`):** Used on the client-side inside the crawler Lambda function to generate BM25 sparse vector embeddings locally.
 
 These dependencies introduced severe operational, sizing, and performance limits at scale:
-* **Large Deployment Archive:** Bundling `fastembed` and `onnxruntime` (along with their dependency trees of Pydantic, SQLAlchemy, loguru, numpy, etc.) created a Lambda ZIP bundle exceeding **180 MB**.
+* **Large Deployment Archive:** Bundling `fastembed` and `onnxruntime` (along with their dependency trees of Pydantic, SQLAlchemy, loguru, numpy, etc.) created a Lambda ZIP bundle of **85.7 MB**.
 * **Slow Cold Start Latency:** The initial imports of these heavy libraries took up to **5.8 seconds**, hurting real-time scalability.
 * **Memory and Execution Timeout Bottlenecks:** Instantiating the ONNX model locally in the Lambda container consumed **280MB+ of RAM** and CPU cycles. Scaling ingestion to process a large document corpus (e.g., 100k chunks) would lead to memory exhaustion and 15-minute Lambda execution timeouts.
 * **Complex Build Pipeline:** Packaging local ONNX model caches inside the build artifact (`build.sh`) required complex caching and script wrappers, slowing down the CI/CD pipeline.
@@ -39,7 +39,7 @@ These dependencies introduced severe operational, sizing, and performance limits
 2. **Option 2: Decouple dependencies by implementing custom splitters and migrating to Qdrant Server-Side BM25 Inference (Chosen)**
    * Replace LangChain splitters with custom pure-Python classes implementing the exact same markdown header and recursive character splitting algorithms.
    * Remove FastEmbed and delegate sparse vector generation to the **Qdrant managed Inference Service** on the server side using the `Qdrant/bm25` model.
-   * *Pros:* Shrunk package size by 91% and cold starts by 96%, offloads compute to the database, and preserves absolute backwards compatibility with zero re-indexing required.
+   * *Pros:* Shrunk package size by 51% and cold starts by 96%, offloads compute to the database, and preserves absolute backwards compatibility with zero re-indexing required.
 
 ---
 
@@ -66,7 +66,7 @@ We chose to evolve the ingestion pipeline proactively by removing LangChain and 
 ## Consequences
 
 ### Positive Impact (Metrics):
-* **Ingestion Lambda Zip Size:** Shrunk from ~180 MB to **< 15 MB** (a **91% reduction**).
+* **Ingestion Lambda Zip Size:** Shrunk from **85.7 MB** to **41.9 MB** (a **51% reduction**).
 * **Lambda Memory Footprint:** Dropped from ~280 MB to **~50 MB** (an **82% reduction**).
 * **Lambda Cold Start Latency:** Decreased from ~5.8s to **< 200 ms** (a **96% reduction**).
 * **Computational Scaling:** Freeing the Lambda from ONNX inference prevents resource constraints, making it fully ready to process 100k+ chunks concurrently via parallel SQS worker triggers.
@@ -76,7 +76,7 @@ We chose to evolve the ingestion pipeline proactively by removing LangChain and 
 
 | Metric | Before Decoupling | After Decoupling | Optimization Delta |
 | :--- | :--- | :--- | :--- |
-| **Ingestion Lambda Zip Size** | ~180 MB | **< 15 MB** | **-91%** (Reduced payload size) |
+| **Ingestion Lambda Zip Size** | **85.7 MB** | **41.9 MB** | **-51%** (Reduced package size) |
 | **Lambda Memory Footprint** | ~280 MB | **~50 MB** | **-82%** (Memory freed from ONNX Runtime) |
 | **Lambda Cold Start Latency** | ~5.8 seconds | **< 200 ms** | **-96%** (Eliminated dependency loading) |
 | **Ingestion Scalability** | Limits at ~10k docs (timeouts) | Concurrency-ready (100k+ docs) | **Stabilized** (DB-offloaded calculations) |
