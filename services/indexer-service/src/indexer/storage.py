@@ -87,24 +87,11 @@ def get_qdrant_client() -> MiniQdrantClient:
 
 def get_table():
     """
-    Retrieves the DynamoDB table instance. Bootstraps
-    table creation if it doesn't exist.
+    Retrieves the DynamoDB table instance.
     """
-    try:
-        table = dynamodb.Table(TABLE_NAME)
-        table.load()  # Will trigger exception if table does not exist
-        return table
-    except dynamodb.meta.client.exceptions.ResourceNotFoundException:
-        logger.warning(f"DynamoDB Table '{TABLE_NAME}' not found. Creating...")
-        table = dynamodb.create_table(
-            TableName=TABLE_NAME,
-            KeySchema=[{"AttributeName": "doc_id", "KeyType": "HASH"}],
-            AttributeDefinitions=[{"AttributeName": "doc_id", "AttributeType": "S"}],
-            BillingMode="PAY_PER_REQUEST",
-        )
-        table.meta.client.get_waiter("table_exists").wait(TableName=TABLE_NAME)
-        logger.info(f"Created DynamoDB Table '{TABLE_NAME}'.")
-        return table
+    table = dynamodb.Table(TABLE_NAME)
+    table.load()  # Will trigger exception if table does not exist
+    return table
 
 
 def check_document_hash(doc_id: str, new_hash: str) -> bool:
