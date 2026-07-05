@@ -1,5 +1,5 @@
 from indexer.chunker import chunk_markdown_docs
-from langchain_core.documents import Document
+from indexer.custom_splitters import Document
 
 
 def test_chunk_markdown_docs():

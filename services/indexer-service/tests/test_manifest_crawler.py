@@ -3,8 +3,8 @@ import json
 from unittest.mock import MagicMock, call, patch
 
 from botocore.exceptions import ClientError
+from indexer.custom_splitters import Document
 from indexer.manifest_crawler import get_sanitized_name, run_manifest_crawler, settings
-from langchain_core.documents import Document
 
 
 @patch("indexer.manifest_crawler.s3_client")

@@ -6,9 +6,8 @@ import asyncio
 import json
 import logging
 
-from langchain_core.documents import Document
-
 from indexer.chunker import chunk_markdown_docs
+from indexer.custom_splitters import Document
 from indexer.manifest_crawler import run_manifest_crawler
 from indexer.parser import download_from_s3
 from indexer.storage import (

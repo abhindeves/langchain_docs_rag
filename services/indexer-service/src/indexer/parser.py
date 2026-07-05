@@ -7,8 +7,8 @@ import logging
 import urllib.request
 
 import boto3
-from langchain_core.documents import Document
 
+from indexer.custom_splitters import Document
 from rag_shared.config import get_shared_settings
 
 logger = logging.getLogger(__name__)

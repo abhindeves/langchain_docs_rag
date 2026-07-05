@@ -1,7 +1,7 @@
 import logging
 
-from langchain_core.documents import Document
-from langchain_text_splitters import (
+from indexer.custom_splitters import (
+    Document,
     MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
