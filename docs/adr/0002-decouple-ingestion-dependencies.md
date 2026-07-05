@@ -55,11 +55,15 @@ We chose to evolve the ingestion pipeline proactively by removing LangChain and 
    * Implemented a standard `Document` class matching LangChain's schema.
    * Implemented `MarkdownHeaderTextSplitter` and `RecursiveCharacterTextSplitter` matching the exact splitting loops and overlap logic.
 2. **Server-Side BM25 Inference Integration (`storage.py`):**
-   * Instead of generating sparse embeddings locally and uploading a `SparseVector(indices=..., values=...)`, we map the named vector `"bm25_sparse_vector"` to Qdrant's native `models.Document(text=chunk, model="Qdrant/bm25")` payload structure.
+   * Map the named vector `"bm25_sparse_vector"` to Qdrant's server-side document payload structure: `{"text": chunk, "model": "Qdrant/bm25"}`.
    * Qdrant's cluster parses, tokenizes, and indexes the raw text automatically on the server side.
-3. **Dependency Cleanup:**
-   * Removed `"fastembed>=0.8.0"` from `pyproject.toml` and cleaned the build step in `build.sh`.
-   * Updated lock files, removing 110+ transitive dependencies.
+3. **Bypassing the Official SDK (REST Helper Client):**
+   * Implemented a lightweight, 40-line `MiniQdrantClient` using Python's native `urllib3.PoolManager()` for connection pooling and HTTP/1.1 Keep-Alive.
+   * Replaced all SDK structures (`PointStruct`, `Filter`, `FieldCondition`, `VectorParams`) with standard Python dictionary models, completely decoupling the Lambda function from the official `qdrant-client` package.
+4. **Dependency Cleanup:**
+   * Removed `fastembed` and `qdrant-client` from `indexer-service` and `shared-lib` dependencies.
+   * Excluded `boto3`, `botocore`, `s3transfer`, and `jmespath` in `build.sh` (as they are pre-bundled in the AWS Lambda runtime).
+   * This completely eliminated heavy binary C-extensions like `numpy` and `grpcio` from the deployment package.
 
 ---
 
