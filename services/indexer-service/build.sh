@@ -40,15 +40,6 @@ cp -r "$DIR/src/indexer" "$BUILD_DIR/"
 # Copy shared-lib source package
 cp -r "$WORKSPACE_DIR/shared-lib/src/rag_shared" "$BUILD_DIR/"
 
-echo "=== Pre-downloading FastEmbed model ==="
-PYTHONPATH="$BUILD_DIR" HF_HUB_DISABLE_SYMLINKS=1 uv run python -c "
-import os
-os.environ['FASTEMBED_CACHE_PATH'] = '$BUILD_DIR/fastembed_cache'
-from fastembed import SparseTextEmbedding
-# Instantiating downloads model files locally
-model = SparseTextEmbedding(model_name='Qdrant/bm25')
-"
-
 echo "=== Cleaning up build assets ==="
 # Remove temp requirements
 rm -f "$BUILD_DIR/requirements.txt"

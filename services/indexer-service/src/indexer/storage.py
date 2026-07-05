@@ -1,6 +1,4 @@
-import asyncio
 import logging
-import os
 import uuid
 from typing import Any
 
@@ -8,12 +6,12 @@ import boto3
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    Document,
     FieldCondition,
     Filter,
     MatchValue,
     Modifier,
     PointStruct,
-    SparseVector,
     SparseVectorParams,
     VectorParams,
 )
@@ -27,26 +25,6 @@ dynamodb: Any = boto3.resource("dynamodb", region_name=settings.aws_region)
 logger = logging.getLogger(__name__)
 
 embedder = Embedder()
-
-_sparse_model = None
-
-
-def get_sparse_model():
-    """Lazily loads and returns the FastEmbed BM25 sparse text embedder."""
-    global _sparse_model
-    if _sparse_model is None:
-        # Check if local pre-bundled cache exists in Lambda task root
-        task_root = os.environ.get("LAMBDA_TASK_ROOT", "")
-        bundled_cache = os.path.join(task_root, "fastembed_cache")
-        if task_root and os.path.exists(bundled_cache):
-            os.environ["FASTEMBED_CACHE_PATH"] = bundled_cache
-        else:
-            # Fallback for local testing or write permission environments
-            os.environ["FASTEMBED_CACHE_PATH"] = "/tmp/fastembed"
-        from fastembed import SparseTextEmbedding
-
-        _sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
-    return _sparse_model
 
 
 TABLE_NAME = "DocumentSyncStatus"
@@ -207,23 +185,18 @@ async def save_chunks_to_qdrant(doc_id: str, doc_url: str, chunks: list[str]) ->
     logger.info(f"Generating dense embeddings using model '{settings.embedding_model}'...")
     embeddings = await embedder.embed_documents(chunks)
 
-    # 4. Generate sparse embeddings using FastEmbed (bm25) in a thread pool
-    logger.info("Generating sparse BM25 embeddings...")
-    sparse_model = get_sparse_model()
-    sparse_embeddings = await asyncio.to_thread(lambda sm=sparse_model, bc=chunks: list(sm.embed(bc)))
-
-    # 5. Prepare Points
+    # 4. Prepare Points with server-side BM25 sparse vector generation
     points = []
-    for i, (chunk, dense_vector, sparse_vector) in enumerate(zip(chunks, embeddings, sparse_embeddings, strict=True)):
+    for i, (chunk, dense_vector) in enumerate(zip(chunks, embeddings, strict=True)):
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_chunk_{i}"))
         points.append(
             PointStruct(
                 id=point_id,
                 vector={
                     "dense_vector": dense_vector,
-                    "bm25_sparse_vector": SparseVector(
-                        indices=sparse_vector.indices.tolist(),
-                        values=sparse_vector.values.tolist(),
+                    "bm25_sparse_vector": Document(
+                        text=chunk,
+                        model="Qdrant/bm25",
                     ),
                 },
                 payload={
