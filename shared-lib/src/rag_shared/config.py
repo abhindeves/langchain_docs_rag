@@ -1,28 +1,17 @@
-from pydantic import AliasChoices, Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
-class SharedSettings(BaseSettings):
-    qdrant_host: str = Field(
-        default="",
-        validation_alias=AliasChoices("qdrant_host", "qdrant_cluster_endpoint"),
-    )
-    qdrant_api_key: str | None = None
+class SharedSettings:
+    def __init__(self):
+        self.qdrant_host = os.environ.get("QDRANT_HOST", os.environ.get("QDRANT_CLUSTER_ENDPOINT", ""))
+        self.qdrant_api_key = os.environ.get("QDRANT_API_KEY", None)
 
-    # Common RAG settings
-    embedding_model: str = "amazon.titan-embed-text-v2:0"
-    chat_model: str = "anthropic.claude-3-haiku-20240307-v1:0"
-    aws_region: str = "ap-south-1"
-    s3_bucket: str = "rag-document-store"
-    sqs_queue_url: str = "rag-ingestion-queue"
-    qdrant_collection: str = "documents"
-
-    # Reads environment variables or local .env automatically
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+        self.embedding_model = os.environ.get("EMBEDDING_MODEL", "amazon.titan-embed-text-v2:0")
+        self.chat_model = os.environ.get("CHAT_MODEL", "anthropic.claude-3-haiku-20240307-v1:0")
+        self.aws_region = os.environ.get("AWS_REGION", "ap-south-1")
+        self.s3_bucket = os.environ.get("S3_BUCKET", "rag-document-store")
+        self.sqs_queue_url = os.environ.get("SQS_QUEUE_URL", "rag-ingestion-queue")
+        self.qdrant_collection = os.environ.get("QDRANT_COLLECTION", "documents")
 
 
 def get_shared_settings() -> SharedSettings:

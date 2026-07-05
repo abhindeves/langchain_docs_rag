@@ -18,9 +18,14 @@ mkdir -p "$BUILD_DIR"
 
 echo "=== Exporting workspace requirements using uv ==="
 # Export dependencies, omitting local shared-lib package since we copy its source code directly.
+# Exclude boto3, botocore, s3transfer, and jmespath since they are pre-bundled in the AWS Lambda runtime.
 # Target manylinux_2_28 (compatible with Amazon Linux 2023 / Python 3.12 Lambda runtime).
 uv pip compile "$DIR/pyproject.toml" \
   --no-emit-package shared-lib \
+  --no-emit-package boto3 \
+  --no-emit-package botocore \
+  --no-emit-package s3transfer \
+  --no-emit-package jmespath \
   --python-platform x86_64-manylinux_2_28 \
   --python-version 3.12 \
   -o "$BUILD_DIR/requirements.txt"

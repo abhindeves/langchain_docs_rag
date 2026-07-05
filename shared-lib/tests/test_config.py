@@ -6,7 +6,7 @@ def test_shared_settings_defaults(monkeypatch):
     monkeypatch.delenv("QDRANT_CLUSTER_ENDPOINT", raising=False)
     monkeypatch.delenv("EMBEDDING_MODEL", raising=False)
 
-    settings = SharedSettings(_env_file=None)  # pyright: ignore[reportCallIssue]
+    settings = SharedSettings()
     assert settings.qdrant_host == ""
     assert settings.embedding_model == "amazon.titan-embed-text-v2:0"
 
