@@ -8,16 +8,18 @@
 
 ## Context and Problem Statement
 
-The initial RAG indexing pipeline relied on a single, synchronous crawler Lambda. This design had several major scaling and performance limits:
-1. **Serial Execution & Timeout Risks:** Scoping and crawling multiple site domains sequentially within a single Lambda execution ran the risk of hitting AWS Lambda's maximum 15-minute timeout.
-2. **Costly Deduplication:** Before uploading raw pages to S3, the crawler queried a DynamoDB table key-by-key for each document URL to check for content hash matches. For 1,500+ documents, this required 1,500+ DynamoDB Read Request Units (RRUs) per daily crawl, leading to high cost and bottlenecking.
-3. **Flat S3 Bucket Structure:** All raw page objects were dumped into a flat directory structure (`raw/pages/{md5_hash}.json`), making it impossible to debug or trace which files belonged to which documentation source.
+While the initial synchronous crawler met current functional requirements, it coupled discovery, crawling, and deduplication into a single execution path. As the number of documentation sources, crawl frequency, or document volume grows, this architecture would require significant redesign to scale efficiently. We therefore chose to evolve the ingestion pipeline proactively into an event-driven architecture, focusing on addressing the following long-term constraints:
+
+1. **Serial Execution & Timeout Risks:** Scoping and crawling multiple site domains sequentially within a single Lambda execution runs the risk of hitting AWS Lambda's maximum 15-minute timeout as document sources are added.
+2. **Costly Deduplication:** Before uploading raw pages to S3, querying a DynamoDB table key-by-key for each document URL to check for content hash matches incurs significant read request overhead (1,500+ DynamoDB Read Request Units per daily crawl), leading to unnecessary API billing as volume increases.
+3. **Flat S3 Bucket Structure:** Storing raw page objects under a flat directory structure (`raw/pages/{md5_hash}.json`) reduces auditability, making it difficult to trace or browse files belonging to specific documentation sources.
 
 ---
 
 ## Decision Drivers
 
 * **Scalability:** The system must handle crawling dozens of independent documentation endpoints in parallel.
+* **Architectural Stability:** Design the ingestion pipeline so that expected growth in documentation sources, crawl volume, or processing frequency can be accommodated through horizontal scaling rather than requiring fundamental architectural changes.
 * **Operational Cost:** Minimize database read/write costs (DynamoDB) and embedding costs (AWS Bedrock) by optimizing deduplication.
 * **Auditability:** Provide a clear, human-readable layout of crawled documents in the S3 bucket.
 * **Resilience:** Protect the system from "poison pill" inputs and endless execution retry loops on broken/offline URLs.
