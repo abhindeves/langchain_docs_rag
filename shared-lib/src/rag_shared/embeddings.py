@@ -36,7 +36,9 @@ class Embedder:
             accept="application/json",
             contentType="application/json",
         )
-        response_body = json.loads(response.get("body").read())
+        # Use a context manager to read and close the connection stream
+        with response.get("body") as stream:
+            response_body = json.loads(stream.read())
         return response_body.get("embedding")
 
     async def embed_query(self, text: str) -> list[float]:
@@ -54,6 +56,10 @@ class Embedder:
             async with semaphore:
                 return await self.embed_query(t)
 
-        tasks = [embed_with_sem(t) for t in texts]
+        # Using asyncio.TaskGroup to fail fast: if one task fails, all other pending tasks are cancelled
+        tasks = []
+        async with asyncio.TaskGroup() as tg:
+            for t in texts:
+                tasks.append(tg.create_task(embed_with_sem(t)))
 
-        return await asyncio.gather(*tasks)
+        return [task.result() for task in tasks]

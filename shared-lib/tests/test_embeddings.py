@@ -33,6 +33,8 @@ async def test_embed_query(mock_boto_client):
     # Mock invoke_model response body stream
     mock_body = MagicMock()
     mock_body.read.return_value = json.dumps({"embedding": [0.1, 0.2, 0.3]}).encode("utf-8")
+    # Set mock to behave correctly inside "with" block
+    mock_body.__enter__.return_value = mock_body
 
     mock_response = {"body": mock_body}
     mock_bedrock.invoke_model.return_value = mock_response
@@ -59,8 +61,11 @@ async def test_embed_documents(mock_boto_client):
     # Mock invoke_model responses
     mock_body1 = MagicMock()
     mock_body1.read.return_value = json.dumps({"embedding": [0.1, 0.2]}).encode("utf-8")
+    mock_body1.__enter__.return_value = mock_body1
+
     mock_body2 = MagicMock()
     mock_body2.read.return_value = json.dumps({"embedding": [0.3, 0.4]}).encode("utf-8")
+    mock_body2.__enter__.return_value = mock_body2
 
     mock_bedrock.invoke_model.side_effect = [
         {"body": mock_body1},
@@ -75,3 +80,28 @@ async def test_embed_documents(mock_boto_client):
 
     # Test empty list guard
     assert await embedder.embed_documents([]) == []
+
+
+@pytest.mark.anyio
+@patch("rag_shared.embeddings.boto3.client")
+async def test_embed_documents_fast_fail(mock_boto_client):
+    mock_bedrock = MagicMock()
+    mock_boto_client.return_value = mock_bedrock
+
+    # Make first call succeed, second call raise exception
+    mock_body1 = MagicMock()
+    mock_body1.read.return_value = json.dumps({"embedding": [0.1, 0.2]}).encode("utf-8")
+    mock_body1.__enter__.return_value = mock_body1
+
+    mock_bedrock.invoke_model.side_effect = [
+        {"body": mock_body1},
+        RuntimeError("Bedrock call failed"),
+    ]
+
+    embedder = Embedder()
+
+    # The ExceptionGroup should catch the sub-exception of RuntimeError
+    with pytest.raises(ExceptionGroup) as exc_info:
+        await embedder.embed_documents(["hello", "world"])
+
+    assert any("Bedrock call failed" in str(e) for e in exc_info.value.exceptions)
