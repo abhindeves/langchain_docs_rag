@@ -9,8 +9,6 @@ logger = logging.getLogger("api_service")
 def setup_exception_handler(app: FastAPI):
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
-        logger.error(f"Internal server error: {str(exc)}")
-
         correlation_id = getattr(request.state, "correlation_id", "unknown")
 
         logger.error(f"Unhandled execption occured, CorrelationID={correlation_id} Error={str(exc)}", exc_info=True)

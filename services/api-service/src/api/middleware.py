@@ -13,6 +13,7 @@ class CorrelationAndTimingMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
 
         correlation_id = request.headers.get("x-correlation-id", str(uuid.uuid4()))
+        correlation_id = correlation_id.replace("\r", "").replace("\n", "")
 
         request.state.correlation_id = correlation_id
 
