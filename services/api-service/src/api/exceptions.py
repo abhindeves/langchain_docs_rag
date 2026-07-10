@@ -13,7 +13,7 @@ def setup_exception_handler(app: FastAPI):
 
         correlation_id = getattr(request.state, "correlation_id", "unknown")
 
-        logger.error(f"Unhandled execption occured, CorrelationID={correlation_id} " f"Error={str(exc)}", exc_info=True)
+        logger.error(f"Unhandled execption occured, CorrelationID={correlation_id} Error={str(exc)}", exc_info=True)
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

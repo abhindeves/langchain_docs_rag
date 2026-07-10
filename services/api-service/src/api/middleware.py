@@ -23,5 +23,5 @@ class CorrelationAndTimingMiddleware(BaseHTTPMiddleware):
         response.headers["x-correlation-id"] = correlation_id
         response.headers["x-process-time"] = str(process_time)
 
-        logger.info(f"Method={request.method} Path={request.url.path} " f"Status={response.status_code} Time={process_time:.4f}s" f"CorrID={correlation_id}")
+        logger.info(f"Method={request.method} Path={request.url.path} Status={response.status_code} Time={process_time:.4f}sCorrID={correlation_id}")
         return response
