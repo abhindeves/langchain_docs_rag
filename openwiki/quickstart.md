@@ -29,3 +29,4 @@ The platform is designed with a serverless-first approach, leveraging AWS servic
 *   **[Ingestion Service](./services/ingestion.md):** Describes the data ingestion pipeline.
 *   **[API Service](./services/api.md):** Details on the FastAPI-based query and retrieval endpoints.
 *   **[Deployment with IaC](./deployment/iac.md):** Information on deploying and managing the infrastructure with Pulumi.
+*   **[GitHub Actions](./deployment/github-actions.md):** Details on the automated documentation update workflow.
