@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -18,6 +20,7 @@ async def embed_function(request: EmbedRequest):
         vector = await embedder.embed_query(request.text)
         return {"embedding": vector}
     except Exception as e:
+        logging.error(f"Failed to embed text: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to embed text: {str(e)}",

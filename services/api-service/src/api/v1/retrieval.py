@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from api.config import get_api_settings
@@ -51,8 +52,8 @@ async def retrieve(request: Request, payload: RetrieveRequest):
         # Build the metadata filter
         query_filter = build_qdrant_filter(payload.metadata_filter)
 
-        # Dynamically set initial Qdrant limit (larger pool if reranking is enabled)
-        search_limit = payload.top_k if payload.reranker else payload.rerank_top_k
+        # Number of documents to retrieve from Qdrant
+        search_limit = payload.top_k
 
         # 1. Generate dense query embedding
         query_vector = await embedder.embed_query(payload.query_text)
@@ -117,6 +118,7 @@ async def retrieve(request: Request, payload: RetrieveRequest):
     except HTTPException:
         raise
     except Exception as e:
+        logging.error(f"Failed to retrieve documents: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve documents: {str(e)}",

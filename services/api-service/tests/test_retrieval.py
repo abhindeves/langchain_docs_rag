@@ -99,3 +99,32 @@ def test_retrieve_invalid_filter_type(mock_reranker, mock_embedder, mock_qdrant_
 
         assert response.status_code == 400
         assert "must be a primitive type" in response.json()["detail"]
+
+
+@patch("api.main.AsyncQdrantClient")
+@patch("api.v1.retrieval.embedder")
+@patch("api.v1.retrieval.reranker_client")
+def test_retrieve_uses_top_k_for_qdrant_limit(mock_reranker, mock_embedder, mock_qdrant_class):
+    """Verify that the search_limit passed to Qdrant is strictly payload.top_k."""
+    mock_embedder.embed_query = AsyncMock(return_value=[0.1] * 1024)
+    mock_reranker.rerank = AsyncMock(return_value=[])
+
+    mock_qdrant = MagicMock()
+    mock_qdrant.query_points = AsyncMock()
+    mock_qdrant.close = AsyncMock()
+    mock_qdrant.query_points.return_value.points = []
+
+    with TestClient(app) as client:
+        app.state.qdrant_client = mock_qdrant
+
+        # Set top_k to 50, rerank_top_k to 10. We expect limit=50.
+        payload = {"query_text": "Test Qdrant limit", "top_k": 50, "hybrid": False, "reranker": True, "rerank_top_k": 10}
+
+        response = client.post("/api/v1/retrieve", json=payload)
+
+        assert response.status_code == 200
+
+        # Verify limit argument to query_points was top_k (50)
+        mock_qdrant.query_points.assert_called_once()
+        _, kwargs = mock_qdrant.query_points.call_args
+        assert kwargs.get("limit") == 50

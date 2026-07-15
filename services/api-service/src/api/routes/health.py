@@ -1,3 +1,5 @@
+import logging
+
 from api.config import get_api_settings
 from fastapi import APIRouter, HTTPException, Request, status
 from qdrant_client import AsyncQdrantClient
@@ -26,6 +28,7 @@ async def readiness(request: Request):
         await client.get_collections()
         return {"status": "ready", "database": "connected"}
     except Exception as e:
+        logging.error(f"Qdrant database is not reachable: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Qdrant database is not reachable: {str(e)}",
