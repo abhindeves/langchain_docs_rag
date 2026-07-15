@@ -13,7 +13,7 @@ settings = get_api_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize the high-performance Async Qdrant Client connection pool at startup
+    # Initialize Async Qdrant Client connection pool at startup
     app.state.qdrant_client = AsyncQdrantClient(
         url=settings.qdrant_host,
         api_key=settings.qdrant_api_key,
