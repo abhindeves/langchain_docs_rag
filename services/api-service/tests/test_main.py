@@ -12,13 +12,16 @@ def test_liveness():
         assert response.json() == {"status": "ok", "service": "api-service"}
 
 
+@patch("api.routes.health.settings")
 @patch("api.main.settings")
 @patch("api.main.AsyncQdrantClient")
-def test_readiness_success(mock_qdrant_client_class, mock_settings):
+def test_readiness_success(mock_qdrant_client_class, mock_settings_main, mock_settings_health):
     """Verify that readiness check succeeds when AsyncQdrantClient list collections responds."""
     # Configure mock settings
-    mock_settings.qdrant_host = "http://mock-qdrant"
-    mock_settings.qdrant_api_key = "mock-key"
+    mock_settings_main.qdrant_host = "http://mock-qdrant"
+    mock_settings_main.qdrant_api_key = "mock-key"
+    mock_settings_health.qdrant_host = "http://mock-qdrant"
+    mock_settings_health.qdrant_api_key = "mock-key"
 
     # Mock the instance returned by AsyncQdrantClient
     mock_client_instance = MagicMock()
@@ -43,13 +46,16 @@ def test_readiness_success(mock_qdrant_client_class, mock_settings):
     mock_client_instance.close.assert_called_once()
 
 
+@patch("api.routes.health.settings")
 @patch("api.main.settings")
 @patch("api.main.AsyncQdrantClient")
-def test_readiness_failure(mock_qdrant_client_class, mock_settings):
+def test_readiness_failure(mock_qdrant_client_class, mock_settings_main, mock_settings_health):
     """Verify that readiness check returns 503 Service Unavailable on Qdrant exceptions."""
     # Configure mock settings
-    mock_settings.qdrant_host = "http://mock-qdrant"
-    mock_settings.qdrant_api_key = "mock-key"
+    mock_settings_main.qdrant_host = "http://mock-qdrant"
+    mock_settings_main.qdrant_api_key = "mock-key"
+    mock_settings_health.qdrant_host = "http://mock-qdrant"
+    mock_settings_health.qdrant_api_key = "mock-key"
 
     # Mock the instance returned by AsyncQdrantClient
     mock_client_instance = MagicMock()
