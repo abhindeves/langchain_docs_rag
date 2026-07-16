@@ -4,7 +4,7 @@ from typing import Any
 from api.config import get_api_settings
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from qdrant_client import models
+from qdrant_client import AsyncQdrantClient, models
 
 from rag_shared.embeddings import Embedder
 from rag_shared.reranker import Reranker
@@ -44,6 +44,77 @@ def build_qdrant_filter(metadata_filter: dict[str, Any] | None) -> models.Filter
     return models.Filter(must=must_conditions)
 
 
+async def retrieve_result(client: AsyncQdrantClient, query_filter: models.Filter | None, search_limit: int, query_vector: list[float], hybrid: bool, query_text: str) -> list[dict]:
+    """
+    Retrieves documents from Qdrant using hybrid search.
+
+    Args:
+        client: The Qdrant client.
+        query_filter: The metadata filter.
+        search_limit: The number of documents to retrieve.
+        query_vector: The dense query embedding.
+        hybrid: Whether to use hybrid search.
+        query_text: The query text.
+
+    Returns:
+        A list of retrieved documents.
+    """
+
+    if hybrid:
+        # 2a. Execute Hybrid Search (Dense + BM25 Sparse with RRF Fusion)
+        response = await client.query_points(
+            collection_name=settings.qdrant_collection,
+            prefetch=[
+                # Prefetch Dense
+                models.Prefetch(
+                    query=query_vector,
+                    using="dense_vector",
+                    filter=query_filter,
+                    limit=search_limit,
+                ),
+                # Prefetch BM25 Sparse (evaluated server-side)
+                models.Prefetch(
+                    query=models.Document(text=query_text, model="Qdrant/bm25"),
+                    using="bm25_sparse_vector",
+                    filter=query_filter,
+                    limit=search_limit,
+                ),
+            ],
+            query=models.FusionQuery(fusion=models.Fusion.RRF),
+            limit=search_limit,
+            with_payload=True,
+        )
+    else:
+        # 2b. Fallback to standard Dense-only Search
+        response = await client.query_points(
+            collection_name=settings.qdrant_collection,
+            query=query_vector,
+            using="dense_vector",
+            filter=query_filter,
+            limit=search_limit,
+            with_payload=True,
+        )
+
+    # 3. Format results to return to the client
+    results = []
+    for point in response.points:
+        payload = point.payload or {}
+        results.append(
+            {
+                "chunk_id": point.id,
+                "score": point.score,
+                "text": payload.get("text"),
+                "metadata": {
+                    "doc_id": payload.get("doc_id"),
+                    "doc_url": payload.get("doc_url"),
+                    "chunk_index": payload.get("chunk_index"),
+                },
+            }
+        )
+
+    return results
+
+
 @router.post("/retrieve", status_code=status.HTTP_200_OK)
 async def retrieve(request: Request, payload: RetrieveRequest):
     try:
@@ -58,56 +129,7 @@ async def retrieve(request: Request, payload: RetrieveRequest):
         # 1. Generate dense query embedding
         query_vector = await embedder.embed_query(payload.query_text)
 
-        if payload.hybrid:
-            # 2a. Execute Hybrid Search (Dense + BM25 Sparse with RRF Fusion)
-            response = await client.query_points(
-                collection_name=settings.qdrant_collection,
-                prefetch=[
-                    # Prefetch Dense
-                    models.Prefetch(
-                        query=query_vector,
-                        using="dense_vector",
-                        filter=query_filter,
-                        limit=search_limit,
-                    ),
-                    # Prefetch BM25 Sparse (evaluated server-side)
-                    models.Prefetch(
-                        query=models.Document(text=payload.query_text, model="Qdrant/bm25"),
-                        using="bm25_sparse_vector",
-                        filter=query_filter,
-                        limit=search_limit,
-                    ),
-                ],
-                query=models.FusionQuery(fusion=models.Fusion.RRF),
-                limit=search_limit,
-                with_payload=True,
-            )
-        else:
-            # 2b. Fallback to standard Dense-only Search
-            response = await client.query_points(
-                collection_name=settings.qdrant_collection,
-                query=query_vector,
-                using="dense_vector",
-                filter=query_filter,
-                limit=search_limit,
-                with_payload=True,
-            )
-
-        # 3. Format results to return to the client
-        results = []
-        for point in response.points:
-            results.append(
-                {
-                    "chunk_id": point.id,
-                    "score": point.score,
-                    "text": point.payload.get("text"),
-                    "metadata": {
-                        "doc_id": point.payload.get("doc_id"),
-                        "doc_url": point.payload.get("doc_url"),
-                        "chunk_index": point.payload.get("chunk_index"),
-                    },
-                }
-            )
+        results = await retrieve_result(client=client, query_filter=query_filter, search_limit=search_limit, query_vector=query_vector, hybrid=payload.hybrid, query_text=payload.query_text)
 
         # 4. Optional: Run Reranker on the results
         if payload.reranker:
