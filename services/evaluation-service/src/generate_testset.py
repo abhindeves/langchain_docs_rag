@@ -127,12 +127,11 @@ def generate_incremental_dataset():
             new_dfs.append(testset.to_pandas())  # type: ignore
             successful_generations += 1
             print(f"Successfully generated testcase for {doc.metadata['filename']}")
-        except Exception as e:
-            print(f"Skipping {doc.metadata['filename']} due to internal Ragas error: {e}")
+        except Exception:
+            logger.exception("Generation failed for %s", doc.metadata["filename"])
 
     if not new_dfs:
-        print("Error: Failed to generate any test cases from the selected batch.")
-        return
+        raise RuntimeError("Failed to generate any test cases from the selected batch")
 
     new_df = pd.concat(new_dfs, ignore_index=True)
 
