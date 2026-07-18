@@ -7,3 +7,7 @@ This repository uses OpenWiki for recurring code documentation. Start with `open
 The scheduled OpenWiki GitHub Actions workflow refreshes the repository wiki. Do not hand-edit generated OpenWiki pages unless explicitly asked; prefer updating source code/docs and letting OpenWiki regenerate.
 
 <!-- OPENWIKI:END -->
+
+<RULE>
+Always ask for explicit user permission before executing any file editing tools (like replace_file_content or write_to_file). Do not assume implicit approval.
+</RULE>
