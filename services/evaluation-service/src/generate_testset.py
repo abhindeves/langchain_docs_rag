@@ -25,12 +25,17 @@ def fetch_documents_from_s3(bucket: str, prefix: str, limit: int = 5) -> list[Do
     documents = []
 
     # 1. Grab all file keys (fast)
-    response = s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)
-    if "Contents" not in response:
+    paginator = s3_client.get_paginator("list_objects_v2")
+    pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
+    all_keys = [
+        obj["Key"]
+        for page in pages
+        for obj in page.get("Contents", [])
+        if obj["Key"].endswith(".json")
+    ]
+    if not all_keys:
         print(f"No documents found in s3://{bucket}/{prefix}")
         return []
-
-    all_keys = [obj["Key"] for obj in response["Contents"] if obj["Key"].endswith(".json")]
 
     import json
 
