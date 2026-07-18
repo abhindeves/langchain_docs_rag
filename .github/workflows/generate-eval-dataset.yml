@@ -35,8 +35,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::422600867909:role/github-actions-deploy-role
+          aws-region: ap-south-1
 
       - name: Run Testset Generator
         env:
