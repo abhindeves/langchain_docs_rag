@@ -1,3 +1,10 @@
+---
+type: Quickstart Guide
+title: Quickstart - Serverless RAG Platform
+description: High-level overview and getting started guide for the Serverless RAG Platform on AWS.
+tags: [quickstart, overview, aws, rag, serverless]
+---
+
 # Quickstart: Serverless RAG Platform
 
 This document provides a high-level overview of the Serverless RAG Platform, a production-grade, event-driven Retrieval-Augmented Generation (RAG) platform deployed entirely on AWS.

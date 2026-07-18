@@ -1,3 +1,10 @@
+---
+type: Service Documentation
+title: API Service
+description: Documentation for the FastAPI-based API Service providing query, retrieval, and chat endpoints.
+tags: [api, fastapi, service, retrieval, chat]
+---
+
 # API Service
 
 The API Service provides the main interface for querying the RAG platform. It is a FastAPI-based application that exposes endpoints for health checks, embedding, and (in the future) retrieval and chat.

@@ -1,3 +1,10 @@
+---
+type: CI/CD Documentation
+title: GitHub Actions
+description: Automated GitHub Actions workflows for OpenWiki documentation updates and CI/CD.
+tags: [github-actions, ci-cd, openwiki, deployment]
+---
+
 # GitHub Actions
 
 This repository uses GitHub Actions to automate the process of keeping the OpenWiki documentation up-to-date.

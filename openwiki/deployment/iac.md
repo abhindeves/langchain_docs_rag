@@ -1,3 +1,10 @@
+---
+type: Deployment Guide
+title: Deployment and Infrastructure as Code (IaC)
+description: Guide for deploying and managing the Serverless RAG Platform infrastructure using Pulumi.
+tags: [deployment, pulumi, iac, aws]
+---
+
 # Deployment and Infrastructure as Code (IaC)
 
 This project uses [Pulumi](https://www.pulumi.com/) to manage all AWS infrastructure as code. The entire stack, from S3 buckets to Lambda functions, is defined in Python, enabling version-controlled, repeatable deployments.

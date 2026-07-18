@@ -1,3 +1,10 @@
+---
+type: Architecture Overview
+title: Architecture Overview
+description: Detailed overview of the Serverless RAG Platform's architecture, event-driven ingestion pipeline, and key design decisions.
+tags: [architecture, aws, serverless, rag]
+---
+
 # Architecture Overview
 
 This document provides a detailed overview of the Serverless RAG Platform's architecture, including the event-driven ingestion pipeline and key design decisions.

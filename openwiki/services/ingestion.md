@@ -1,3 +1,10 @@
+---
+type: Service Documentation
+title: Ingestion Service
+description: Documentation for the event-driven serverless ingestion pipeline that crawls, processes, and embeds documents.
+tags: [ingestion, lambda, sqs, s3, bedrock, qdrant]
+---
+
 # Ingestion Service
 
 The Ingestion Service is responsible for crawling documentation sources, processing the content, and preparing it for retrieval. It's an event-driven, serverless pipeline designed for scalability and efficiency.
