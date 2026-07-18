@@ -14,12 +14,13 @@ import random
 import boto3
 import pandas as pd
 
-logger = logging.getLogger(__name__)
 from botocore.exceptions import ClientError
 from config import get_eval_settings  # type: ignore
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from ragas.testset import TestsetGenerator
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_documents_from_s3(bucket: str, prefix: str, limit: int = 5) -> list[Document]:
