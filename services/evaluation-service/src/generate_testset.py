@@ -60,6 +60,9 @@ def fetch_documents_from_s3(bucket: str, prefix: str, limit: int = 5) -> list[Do
             if "# " not in content:
                 content = f"# {key}\n\n{content}"
 
+            # TRUNCATE to 4000 chars to guarantee it runs in seconds, not minutes, and costs ~$0.00
+            content = content[:4000]
+
             documents.append(Document(page_content=content, metadata={"source": f"s3://{bucket}/{key}", "filename": key}))
 
         if len(documents) >= limit:
