@@ -1,7 +1,10 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from api.main import app
+from api.v1.retrieval import retrieve_result
 from fastapi.testclient import TestClient
+from qdrant_client import models
 
 
 @patch("api.main.AsyncQdrantClient")
@@ -128,3 +131,73 @@ def test_retrieve_uses_top_k_for_qdrant_limit(mock_reranker, mock_embedder, mock
         mock_qdrant.query_points.assert_called_once()
         _, kwargs = mock_qdrant.query_points.call_args
         assert kwargs.get("limit") == 50
+
+
+@pytest.mark.anyio
+async def test_retrieve_result_hybrid_direct():
+    """Verify retrieve_result direct behavior for hybrid search."""
+    mock_client = MagicMock()
+    mock_client.query_points = AsyncMock()
+
+    mock_point = MagicMock()
+    mock_point.id = "point-123"
+    mock_point.score = 0.88
+    mock_point.payload = {
+        "text": "Target text chunk.",
+        "doc_id": "doc-456",
+        "doc_url": "https://example.com/doc456",
+        "chunk_index": 2,
+    }
+    mock_client.query_points.return_value.points = [mock_point]
+
+    query_filter = models.Filter(must=[models.FieldCondition(key="category", match=models.MatchValue(value="test"))])
+    query_vector = [0.2] * 1024
+
+    results = await retrieve_result(
+        client=mock_client,
+        query_filter=query_filter,
+        search_limit=5,
+        query_vector=query_vector,
+        hybrid=True,
+        query_text="Hybrid query content",
+    )
+
+    assert len(results) == 1
+    assert results[0]["chunk_id"] == "point-123"
+    assert results[0]["score"] == 0.88
+    assert results[0]["text"] == "Target text chunk."
+    assert results[0]["metadata"]["doc_id"] == "doc-456"
+
+    mock_client.query_points.assert_called_once()
+    _, kwargs = mock_client.query_points.call_args
+    assert kwargs["limit"] == 5
+    assert kwargs["with_payload"] is True
+    assert isinstance(kwargs["query"], models.FusionQuery)
+    assert len(kwargs["prefetch"]) == 2
+
+
+@pytest.mark.anyio
+async def test_retrieve_result_dense_direct():
+    """Verify retrieve_result direct behavior for dense-only search."""
+    mock_client = MagicMock()
+    mock_client.query_points = AsyncMock()
+    mock_client.query_points.return_value.points = []
+
+    query_vector = [0.3] * 1024
+
+    results = await retrieve_result(
+        client=mock_client,
+        query_filter=None,
+        search_limit=10,
+        query_vector=query_vector,
+        hybrid=False,
+        query_text="Dense-only query",
+    )
+
+    assert len(results) == 0
+
+    mock_client.query_points.assert_called_once()
+    _, kwargs = mock_client.query_points.call_args
+    assert kwargs["limit"] == 10
+    assert kwargs["query"] == query_vector
+    assert "prefetch" not in kwargs
