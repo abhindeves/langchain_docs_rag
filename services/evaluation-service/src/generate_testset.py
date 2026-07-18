@@ -4,7 +4,7 @@ import types
 # Workaround for Ragas crashing on missing ChatVertexAI in new LangChain Community versions
 if "langchain_community.chat_models.vertexai" not in sys.modules:
     dummy_module = types.ModuleType("langchain_community.chat_models.vertexai")
-    dummy_module.ChatVertexAI = type("ChatVertexAI", (object,), {})
+    dummy_module.ChatVertexAI = type("ChatVertexAI", (object,), {})  # type: ignore
     sys.modules["langchain_community.chat_models.vertexai"] = dummy_module
 
 import io
@@ -13,7 +13,7 @@ import random
 import boto3
 import pandas as pd
 from botocore.exceptions import ClientError
-from config import get_eval_settings
+from config import get_eval_settings  # type: ignore
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from ragas.testset import TestsetGenerator
@@ -91,7 +91,7 @@ def generate_incremental_dataset():
 
     print("\n--- 2. INITIALIZING GEMINI MODELS ---")
     generator_llm = ChatGoogleGenerativeAI(model=settings.eval_model, google_api_key=settings.gemini_api_key)
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2", google_api_key=settings.gemini_api_key)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2", google_api_key=settings.gemini_api_key)  # type: ignore
 
     generator = TestsetGenerator.from_langchain(llm=generator_llm, embedding_model=embeddings)
 
@@ -119,7 +119,7 @@ def generate_incremental_dataset():
         print(f"\nAttempting generation for: {doc.metadata['filename']}")
         try:
             testset = generator.generate_with_langchain_docs([doc], testset_size=1)
-            new_dfs.append(testset.to_pandas())
+            new_dfs.append(testset.to_pandas())  # type: ignore
             successful_generations += 1
             print(f"Successfully generated testcase for {doc.metadata['filename']}")
         except Exception as e:
