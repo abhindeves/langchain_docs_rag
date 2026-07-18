@@ -13,7 +13,6 @@ import random
 
 import boto3
 import pandas as pd
-
 from botocore.exceptions import ClientError
 from config import get_eval_settings  # type: ignore
 from langchain_core.documents import Document
