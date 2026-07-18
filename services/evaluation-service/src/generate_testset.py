@@ -8,10 +8,13 @@ if "langchain_community.chat_models.vertexai" not in sys.modules:
     sys.modules["langchain_community.chat_models.vertexai"] = dummy_module
 
 import io
+import logging
 import random
 
 import boto3
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 from botocore.exceptions import ClientError
 from config import get_eval_settings  # type: ignore
 from langchain_core.documents import Document
