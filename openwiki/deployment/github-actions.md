@@ -19,9 +19,10 @@ The workflow performs the following steps:
 2.  **Sets up Node.js:** It installs Node.js version 22.
 3.  **Installs OpenWiki:** It installs the `openwiki` CLI tool globally using `npm`.
 4.  **Runs OpenWiki:** It runs the `openwiki code --update --print` command to update the documentation in the `/openwiki` directory. This step now includes several environment variables to configure the OpenWiki run:
-    *   `OPENWIKI_PROVIDER`: Sets the provider to `openrouter`.
-    *   `OPENROUTER_API_KEY`: Uses a secret to authenticate with the OpenRouter API.
-    *   `OPENWIKI_MODEL_ID`: Specifies the model to be used as `z-ai/glm-5.2`.
+    *   `OPENWIKI_PROVIDER`: Sets the provider to `openai-compatible`.
+    *   `OPENAI_COMPATIBLE_BASE_URL`: Sets the base URL for the Gemini API OpenAI-compatible endpoint.
+    *   `OPENAI_COMPATIBLE_API_KEY`: Uses a secret to authenticate with the Gemini API.
+    *   `OPENWIKI_MODEL_ID`: Specifies the model to be used as `gemini-3.1-flash-lite`.
     *   `LANGSMITH_API_KEY`: Configures LangSmith for tracing.
     *   `LANGCHAIN_PROJECT`: Sets the LangChain project name to `openwiki`.
     *   `LANGCHAIN_TRACING_V2`: Enables LangChain tracing.
