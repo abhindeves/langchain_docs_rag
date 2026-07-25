@@ -1,9 +1,3 @@
----
-type: Documentation Index
-title: "Deployment"
-description: "Files and subdirectories in Deployment."
----
-
 # Files
 
 - [GitHub Actions](github-actions.md) - Automated GitHub Actions workflows for OpenWiki documentation updates and CI/CD.
