@@ -1,13 +1,14 @@
 ---
-okf_version: "0.1"
+okf_version: "0.2"
 ---
 
 # Files
 
-- [Quickstart - Serverless RAG Platform](quickstart.md) - High-level overview and getting started guide for the Serverless RAG Platform on AWS.
+- [Quickstart](quickstart.md) - Onboarding guide for the RAG platform, covering the architecture, components, and local development environment setup.
 
 # Directories
 
 - [architecture](architecture/)
 - [deployment](deployment/)
 - [services](services/)
+- [testing](testing/)

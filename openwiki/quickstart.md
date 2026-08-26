@@ -1,39 +1,70 @@
 ---
-type: Quickstart Guide
-title: Quickstart - Serverless RAG Platform
-description: High-level overview and getting started guide for the Serverless RAG Platform on AWS.
-tags: [quickstart, overview, aws, rag, serverless]
+type: Concept
+title: Quickstart
+description: Onboarding guide for the RAG platform, covering the architecture, components, and local development environment setup.
+tags: [quickstart, onboarding, architecture]
+verified:
+  - by: openwiki/0.4.0
+    at: 2026-08-26T08:35:55.733Z
+sources:
+  - id: openwiki-source-45429c71bab6f9779e370ede
+    resource: repo://infra/__main__.py
+  - id: openwiki-source-b6f4e31ca8dfe49b64742655
+    resource: repo://services/api-service/pyproject.toml
+generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
 ---
 
-# Quickstart: Serverless RAG Platform
+# Quickstart
 
-This document provides a high-level overview of the Serverless RAG Platform, a production-grade, event-driven Retrieval-Augmented Generation (RAG) platform deployed entirely on AWS.
+Welcome to the RAG (Retrieval-Augmented Generation) Platform. This guide helps you understand our serverless architecture and set up your local development environment.
 
-## Overview
+## Architecture Overview
 
-The platform is designed with a serverless-first approach, leveraging AWS services to create a scalable, decoupled, and cost-efficient system for RAG. The entire infrastructure is managed programmatically using Pulumi, enabling easy deployment and maintenance.
+Our platform is a production-grade, event-driven system built on AWS using a serverless-first approach. It is designed to be highly scalable, decoupled, and cost-efficient.
 
-### Key Features
+### Key Components
 
-*   **Event-Driven Ingestion:** A highly decoupled architecture using Amazon SQS to trigger asynchronous, auto-scaling Lambda workers for document processing and embedding.
-*   **Intelligent Deduplication:** Utilizes DynamoDB and content hashing (MD5/SHA256) to track document state and avoid redundant embedding costs for unchanged content.
-*   **High-Performance Embeddings:** Integrates with Amazon Bedrock for efficient text embeddings.
-*   **Hybrid Vector Storage:** Leverages Qdrant Cloud for storing both dense and sparse vectors to enable hybrid search.
-*   **Infrastructure as Code (IaC):** All AWS infrastructure is managed via Pulumi with Python.
+*   **[System Architecture Overview](./architecture/overview.md):** The high-level design and data flow.
+*   **[Infrastructure as Code](./architecture/infrastructure.md):** Managed using [Pulumi](https://www.pulumi.com/) with Python.
+*   **[Ingestion Pipeline](./architecture/ingestion-pipeline.md):** Processes documents asynchronously via SQS and AWS Lambda, leveraging Amazon Bedrock for embeddings and storing vectors in Qdrant.
+*   **[API Service](./architecture/api-service.md):** The FastAPI-based interface for handling search and retrieval requests.
 
-## Tech Stack
+## Getting Started
 
-*   **Compute:** AWS Lambda, Amazon SQS
-*   **State & Storage:** Amazon DynamoDB, Amazon S3
-*   **AI/ML:** Amazon Bedrock (Titan Embeddings)
-*   **Vector DB:** Qdrant Cloud
-*   **IaC & CI/CD:** Pulumi (Python), GitHub Actions
-*   **API Framework:** FastAPI, Uvicorn
+### Prerequisites
 
-## Documentation Sections
+1.  **AWS CLI:** [Configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) with appropriate credentials.
+2.  **Pulumi:** [Installed](https://www.pulumi.com/docs/get-started/install/) and authenticated.
+3.  **Python 3.11+:** Required for Lambda functions and IaC scripts.
+4.  **Docker:** Required for local testing of services and vector database containers.
 
-*   **[Architecture Overview](./architecture/overview.md):** A detailed look at the system's architecture and design decisions.
-*   **[Ingestion Service](./services/ingestion.md):** Describes the data ingestion pipeline.
-*   **[API Service](./services/api.md):** Details on the FastAPI-based query and retrieval endpoints.
-*   **[Deployment with IaC](./deployment/iac.md):** Information on deploying and managing the infrastructure with Pulumi.
-*   **[GitHub Actions](./deployment/github-actions.md):** Details on the automated documentation update workflow.
+### Local Environment Setup
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone <repository-url>
+    cd rag-platform
+    ```
+
+2.  **Install Dependencies:**
+    We use `poetry` for dependency management.
+    ```bash
+    poetry install
+    ```
+
+3.  **Environment Configuration:**
+    Copy the sample configuration and update the necessary AWS and Qdrant credentials.
+    ```bash
+    cp .env.example .env
+    ```
+
+4.  **Initialize Infrastructure:**
+    Use Pulumi to preview/deploy infrastructure (requires configured AWS access):
+    ```bash
+    pulumi up
+    ```
+
+## Development Workflow
+
+*   **Testing:** We follow a standardized [Testing Strategy](./testing/strategy.md). Run unit and integration tests using `pytest`.
+*   **Documentation:** Updates to this wiki are handled via GitHub Actions as documented in the deployment guide.
