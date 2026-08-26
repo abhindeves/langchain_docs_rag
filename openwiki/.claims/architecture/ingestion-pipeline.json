@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5cb48458707e4cdd86c18037440ae3e598cf773f828233c51c0100fcc7db52ec",
+  "claims": [
+    {
+      "id": "claim_b248b6f76177429aa5a030edec538add",
+      "statement": "The ingestion pipeline is an event-driven system where an EventBridge-triggered Master Crawler dispatches tasks to an SQS queue; these tasks trigger a Manifest Crawler for deduplication via S3 and raw data storage, which in turn triggers a Worker Lambda to chunk, embed via Bedrock, and store data in Qdrant while updating document status in DynamoDB.",
+      "evidence": [
+        {
+          "resource": "repo://services/indexer-service/src/indexer/lambda_handler.py#L1-L100",
+          "version": "repo-lines-v1:sha256:1d6e2f348e3cce93ccaafaa1e4d47ba830335f40c0332137694bae3a82c06dad:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhMzAzZWNkZDRhNGQxMGYxOWM3M2ZkNDJmZDEyNDM3ZmQzMzU0YTgyNjgxNjA1ZGE1MjU1YTk3YTM5MDY4ZGJiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJkYTYxMGFmNThmMmQ0N2I3NjVjMDdhODkxMGRiZDA4ZjBhMGYxNDU3NThlOWFkZTI5YzY2MTRjYmJjZTYxZjY0IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkYzczNDhkYTNlYzhhNmY1ZWE2MTE1MDA3MWJjOWMwYWJhMTZlZmY5NjBiNDRmYzM4ZGEzYzZjYzlmZGI4NDE3In0"
+        },
+        {
+          "resource": "repo://services/indexer-service/src/indexer/manifest_crawler.py#L1-L100",
+          "version": "repo-lines-v1:sha256:4849b42a2d45e17053802e07c17cdf5ef1d375aeb40a0a252fcec754069ee4b8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhMzAzZWNkZDRhNGQxMGYxOWM3M2ZkNDJmZDEyNDM3ZmQzMzU0YTgyNjgxNjA1ZGE1MjU1YTk3YTM5MDY4ZGJiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2YzA1NDkwZDJjNjUxNGNjMWU2NDhjYTI5YmU1ZWZkOWNiMTgxZWNmMzdlNzRmZjEzZGFhMGM1MzkyYjdiOWVmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzOTRkYjc3ODBiMjc2OWFhYTcxNGFhODEyYjI3OGZmMGQxMGVlYjQ5ZDFiNDBhN2JjMjAyYTAxZDNlMzMyOWRkIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_bb743f558d1b4be48468e067520f2888",
+      "statement": "Using S3 manifest files for deduplication significantly reduces DynamoDB read costs and improves scalability compared to per-item database lookups.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0001-manifest-crawler-sqs-fanout.md#L35-L43",
+          "version": "repo-lines-v1:sha256:9d97a601cf39d0a8c04cbdf64dc76c5b27844de31290a31740aa9035a42fe7cd:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTg5MjIyZTFiZDgyMGMxZGQyZWM2NDFlYTA0MzhmMzA4YjYzNDQxOGEyMjJhMmZkNmJjODY0Y2VkN2RkZDRhZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWZlNjE5NGEyMzUzNDQ3OWU1NzM4MGIzODJlYTM4YmUxYmQ2ZTBmNjliMTIyM2Y0MGU2ODhjOTVhNTM0ZjBlMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGFlYTdlYjdlMzY4N2UzYWFlY2VjOTZkMjllNDBhOTYzN2UzMjM4NDk0YmU0ZGJiNzg0ZjkwMGU0ZDE4NzFmMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0abb8056b3c949a19a805693604154d1",
+      "statement": "The ingestion pipeline minimizes Lambda package size, cold start latency, and memory footprint by replacing heavy libraries like LangChain and FastEmbed with custom, lightweight implementations and direct REST API clients.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0002-decouple-ingestion-dependencies.md#L45-L54",
+          "version": "repo-lines-v1:sha256:57eefa24a662a6a4a29ee6a7b5e93f72f09d7794e6683836a12f5b579e76eb5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxMzA1ZjE1ODFiMzZjNjY4ZWI3YjY4NTQ4Y2Q0MDExOTZjZmM1N2Q3YWVlNmUyZWUyZTY2YWE4ZjBkMTZjNTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkMzNmOWM0NjMxOWM1ZmZjOTY5NDAwMGI1YTJiYzAyNmRkMjk4Mjk2MDFhMGYwYWEwYjk4YjliZjg1MDdlNGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjYzJkZTQwODViZDVjYzBjZWYyNDZjMWJhZDQ0Y2MwZDE2MjU2ZGI0ZGM4ZTE3MWYzY2JkYmIxY2Y5NGM0NzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9301dd10e2d42e99dbd8efa06e0f9f3",
+      "statement": "The architecture ensures pipeline resilience by using a Dead-Letter Queue (DLQ) with SQS to isolate failed ingestion tasks and prevent infinite loops.",
+      "evidence": [
+        {
+          "resource": "repo://services/indexer-service/src/indexer/lambda_handler.py#L1-L50",
+          "version": "repo-lines-v1:sha256:283111d04011bff9b51aa3af8681fb957a30a252b94acc967e82d73d099245c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMGM1NGFmMTMxOGI3YWRmOTg2ZGNhODc2ZjI1Mjk0ZmNjZjk4NmQ0MjVmNTkyZjgwZDFlYWM5YzY5YzYwNTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.0",
+    "at": "2026-08-26T08:35:55.733Z"
+  }
+}

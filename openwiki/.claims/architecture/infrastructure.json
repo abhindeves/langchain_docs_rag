@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1d2fdc90d8c71b28ad1c27261a2d0cf2469571e0deea5d818f8655763ca82cce",
+  "claims": [
+    {
+      "id": "claim_b496b58cac02469ea7f949eb2800fce8",
+      "statement": "The system uses Pulumi with Python to manage AWS infrastructure, with definitions located in /infra/__main__.py.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_0068245a5b3f4a6491fc842edb6ec4c5",
+      "statement": "Pulumi tracks infrastructure state to enable consistent deployments, updates, and destruction of resources via the Pulumi CLI.",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md",
+          "version": "repo-file-v1:sha256:2ec4aab11853f3c86ea65c983cde44cddf2a079a14c98d7e69235939fdc91de1"
+        }
+      ]
+    },
+    {
+      "id": "claim_8f5fa77be1c942d5a38a1b608ff7bd71",
+      "statement": "The infrastructure currently includes a DynamoDB table for synchronization status, an S3 bucket for document storage, and SQS queues for ingestion and crawling tasks with integrated DLQs.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.0",
+    "at": "2026-08-26T08:35:55.733Z"
+  }
+}

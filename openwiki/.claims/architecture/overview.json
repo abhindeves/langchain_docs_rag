@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f8962ce8e5132ac41b48f6f4731ce95a5ab6138324c188c7b6954b133a40f030",
+  "claims": [
+    {
+      "id": "claim_a51220e625fe425792aec289ec438ba0",
+      "statement": "The RAG platform utilizes an event-driven serverless architecture that decouples document discovery, crawling, processing, and embedding.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0001-manifest-crawler-sqs-fanout.md",
+          "version": "repo-file-v1:sha256:fc4dd7752572ca7254b4ff4cf3d2e3a2a9bef78325199c881ecc0fe72d62c037"
+        }
+      ]
+    },
+    {
+      "id": "claim_f5182ec0ad3d479fac8e7a7deef1a21b",
+      "statement": "The ingestion pipeline uses an SQS-based fan-out mechanism to scale crawling tasks, and S3-based manifest deduplication to minimize DynamoDB read costs.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0001-manifest-crawler-sqs-fanout.md",
+          "version": "repo-file-v1:sha256:fc4dd7752572ca7254b4ff4cf3d2e3a2a9bef78325199c881ecc0fe72d62c037"
+        }
+      ]
+    },
+    {
+      "id": "claim_0a9bd34b8c0b4d588cbcf5ea420fb85d",
+      "statement": "Ingestion performance is optimized by decoupling heavy external dependencies, utilizing custom lightweight text splitters, and offloading sparse vector generation to the Qdrant server.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0002-decouple-ingestion-dependencies.md",
+          "version": "repo-file-v1:sha256:2f314a8743b26d69ca63e5a7a0683d181152ab72c329dd4a3a48e42622c0b551"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.0",
+    "at": "2026-08-26T08:35:55.733Z"
+  }
+}

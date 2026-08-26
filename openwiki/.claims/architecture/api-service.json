@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f2bbb174e453f9c8ab9430c6371730b52358aed364e8eee5049561ada6924fc0",
+  "claims": [
+    {
+      "id": "claim_b7ca4b9096444c3b9f6ee35da5f3eb5b",
+      "statement": "The API Service performs hybrid search in Qdrant by executing dense vector search alongside server-side BM25 sparse search and combining results using Reciprocal Rank Fusion (RRF).",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/v1/retrieval.py#L47-L86",
+          "version": "repo-lines-v1:sha256:75e501e5ad24a42d2e9dc19d9cb2d6bcf9dd0bc01c73c0165d9f156fbd75890c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MTFjZGI3MWY1NjE5ZDg2MzI2NTQ2NTAyYWUyZWM2MzZkMGJlYzZkNDQzNzZmZmUzNjllNzU3MzE4YTU0ZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyYmZhNDdkY2I0NDkzMGNmZmQ4ZTZiZWE1MmQ5ZTZkZmQwODdlMDAyYjVjMTMzMDg4Yjc5NzY5MTZhY2Y4M2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4YjM3ZjU5ODNlNGM0MWU2MDFhY2VjYmYzNmNmMjBmZWZmMDhmZTU0NmUxNWVlMTk0NjFhOWY1OTU3OGY2NTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_de9c4c32f2c2484fa2e0c879c17c2ffc",
+      "statement": "The API Service allows clients to toggle hybrid search, reranking, and apply metadata filters per individual search request via the `RetrieveRequest` model.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/v1/retrieval.py#L18-L24",
+          "version": "repo-lines-v1:sha256:f4c003dc6852dac23c89e59e212c88935c5f59f2de882ba8394e358db94308f3:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODUwNTc4NmExODk4Y2ZkYmYzN2I4NzRhYjkzZTdlMGM3OTc0NzNkN2RkN2ZhZjM0YzVhZjY3ZGY2MTYwOWQ4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjczOTc2NmFiODcyY2E3NDI3NzIzYTNjYWEwZjk3ZGI4ZTA5ODQ2YWQ2ZWUxZDUzMDZlY2VjZjY5YTU0Nzg5OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTYwNmVmODBjMTU2NTkzNmU4MDViMDdjZmM1NzA3MWY2MTZhNGQwODE5MGIxZjc1NzFmODlhNmZhZTYwNDkxYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzlhNmQ3YWNmYWFhYmFlOGNjN2FkNjVkYjlhNGY1ODRkN2YyNTgyNTMwNjA2YWU2YWJmMWVmZDViNGQ5ODFjYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_df57cf2795e14559be0cec1ac1bfdd4b",
+      "statement": "The API Service enforces that metadata filter values provided in the request must be primitive types to ensure compatibility with Qdrant's filter conditions.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/v1/retrieval.py#L30-L44",
+          "version": "repo-lines-v1:sha256:03f12bc9ea0826af4d935dc712589833022dc2231f1e9c4b2de93e69ff555c7b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxYzA1ZmY4ZDVmNjc5NDBkYzQwMTg1NTQxMTczYjhhYmFjMzZmNzAwODQxOTdlNDYxMjI2ZDJiZjAzMDhlODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NjRjOTA5YjUzODM0MWUzMWFkNjdjZjU1MTdmOTY3MzQzOGZiYmRkNzUxMzFmYzZkMmExOTllM2QzZjZmMzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1ZjUyNDBiYzM1NjFjNjhiY2JmMWU1ODkwNmYxYTI5ZDY5ZjUxZTc0ZjgyY2Q2NGU5ZjhiYzU3M2NkMTY0YTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwN2Q2MDJkZGYxMWExYTkyNGY2NTZjNTNiNmIxOTA1YTFjZTliMWFlMTgxYWUzOTVjN2Q2NzMyNjExYmM5ZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.0",
+    "at": "2026-08-26T08:35:55.733Z"
+  }
+}

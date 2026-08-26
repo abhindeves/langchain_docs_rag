@@ -1,56 +1,57 @@
 ---
 type: Architecture Overview
-title: Architecture Overview
-description: Detailed overview of the Serverless RAG Platform's architecture, event-driven ingestion pipeline, and key design decisions.
+title: System Architecture Overview
+description: High-level architectural model of the RAG platform, focusing on the event-driven ingestion pipeline and data lifecycle from raw source to vector store.
 tags: [architecture, aws, serverless, rag]
+verified:
+  - by: openwiki/0.4.0
+    at: 2026-08-26T08:35:55.733Z
+sources:
+  - id: openwiki-source-38f037d212ee358478211ba3
+    resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
+  - id: openwiki-source-af70149a354536b126186304
+    resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md
+generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
 ---
 
-# Architecture Overview
+# System Architecture Overview
 
-This document provides a detailed overview of the Serverless RAG Platform's architecture, including the event-driven ingestion pipeline and key design decisions.
+This document provides a high-level model of the Serverless RAG Platform's architecture. The system employs a decoupled, event-driven design to ensure scalability, resilience, and cost-efficiency when processing documents.
 
-## System Architecture
+## Data Lifecycle and Control Flow
 
-The platform is built on a decoupled, event-driven architecture that leverages AWS serverless components to achieve high scalability, resilience, and cost-efficiency.
+The ingestion pipeline automates the transformation of external content into searchable vector embeddings.
 
-![Architecture Diagram](../assets/adr_01.png)
+```mermaid
+flowchart LR
+    EB[EventBridge] --> MC[Master Crawler]
+    MC --> Q[SQS Queue]
+    Q --> ManC[Manifest Crawler]
+    ManC --> S3Raw[(S3 Raw Storage)]
+    S3Raw --> S3Trigger[S3 Event Trigger]
+    S3Trigger --> Worker[Worker Lambda]
+    Worker --> Bedrock[Amazon Bedrock]
+    Worker --> Qdrant[(Qdrant Vector DB)]
+    Worker --> DDB[(DynamoDB Status)]
+```
 
-The core components of the architecture are:
+### Component Roles
 
-*   **EventBridge Scheduler:** A daily cron job that triggers the ingestion process.
-*   **Master Crawler Lambda:** A lightweight Lambda function responsible for identifying the target URLs to be crawled and pushing them as messages to an SQS queue.
-*   **SQS Queues:**
-    *   `rag-crawler-queue`: The main queue for crawling tasks. Messages in this queue trigger the Manifest Crawler Lambda.
-    *   `rag-crawler-dlq`: A dead-letter queue to store messages that fail processing after multiple retries, preventing infinite loops and isolating problematic URLs.
-*   **Manifest Crawler Lambda:** A Lambda function that processes crawl tasks from the SQS queue. It handles fetching content, deduplication, and storing raw data in S3.
-*   **Amazon S3:** Used for storing raw crawled content and state manifests for deduplication.
-*   **Amazon DynamoDB:** Tracks the synchronization status of documents.
-*   **Amazon Bedrock:** Provides text embedding models.
-*   **Qdrant Cloud:** A managed vector database for storing and querying document embeddings.
+*   **Dispatch (EventBridge & Master Crawler):** An EventBridge Scheduler initiates a scheduled crawl. The Master Crawler Lambda identifies source URLs and dispatches them to an SQS queue.
+*   **Crawling & Deduplication (SQS & Manifest Crawler):** The Manifest Crawler consumes queue messages. It performs lightweight deduplication against state manifests stored in S3, avoiding expensive database lookups. New or updated content is saved to raw storage (S3).
+*   **Processing (Worker Lambda):** An S3 event trigger initiates processing. The Worker Lambda chunks the raw content, generates embeddings using Amazon Bedrock, and persists these to the Qdrant vector database.
+*   **Tracking (DynamoDB):** Monitors the synchronization state of ingestion jobs.
 
-## Key Architectural Decisions
+## Architectural Design Principles
 
-The architecture of this platform has been shaped by several key decisions, as detailed in the following Architectural Decision Records (ADRs).
+The platform's design is driven by the following core priorities:
 
-### ADR 0001: SQS Fan-Out and S3 Manifest-Based Deduplication
+*   **Decoupled Dependencies:** To minimize Lambda cold-starts and footprint, the pipeline avoids heavy dependencies (e.g., LangChain, FastEmbed). It uses lightweight custom splitters and direct REST integrations.
+*   **Cost-Optimized Deduplication:** Utilizing S3-based manifests significantly reduces the cost of DynamoDB read operations during high-volume ingestion.
+*   **Fault Tolerance:** SQS serves as a buffer between crawling and processing, with Dead-Letter Queues (DLQ) isolating failed tasks.
 
-To ensure scalability and cost-efficiency, the ingestion pipeline was designed to be event-driven and to minimize expensive database operations.
+## Key Decisions
 
-*   **Problem:** The initial synchronous crawler was not scalable and incurred high DynamoDB read costs for deduplication.
-*   **Solution:** An SQS fan-out pattern was implemented. A master crawler Lambda publishes URLs to an SQS queue, which in turn triggers multiple worker Lambdas. Deduplication is handled by maintaining a manifest file in S3 for each crawl target, which is much cheaper than performing key-by-key lookups in DynamoDB.
-*   **Outcome:** This design significantly reduced DynamoDB read costs, improved scalability by enabling parallel processing, and increased resilience through the use of a dead-letter queue.
-
-*Reference: [`docs/adr/0001-manifest-crawler-sqs-fanout.md`](../../docs/adr/0001-manifest-crawler-sqs-fanout.md)*
-
-### ADR 0002: Decoupled Ingestion Dependencies
-
-The ingestion Lambda functions were optimized for performance and size by removing heavy third-party libraries.
-
-*   **Problem:** Dependencies on libraries like LangChain and FastEmbed resulted in large Lambda deployment packages, slow cold starts, and high memory usage.
-*   **Solution:**
-    *   LangChain's text splitters were replaced with custom, lightweight Python implementations.
-    *   Client-side sparse vector generation with FastEmbed was replaced by leveraging Qdrant's server-side BM25 inference.
-    *   The official `qdrant-client` SDK was replaced with a minimal, direct REST API client.
-*   **Outcome:** This decoupling led to a >99% reduction in the Lambda package size and cold start latency, as well as a >90% reduction in memory footprint. This makes the ingestion pipeline more scalable and cost-effective.
-
-*Reference: [`docs/adr/0002-decouple-ingestion-dependencies.md`](../../docs/adr/0002-decouple-ingestion-dependencies.md)*
+This architecture is governed by specific decisions:
+*   **SQS Fan-Out:** Enables parallel crawling and improved throughput.
+*   **Server-Side Inference:** Offloads intensive vector operations (e.g., BM25) to the Qdrant service.

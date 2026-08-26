@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:c5245bb317f6459f0a63af3d22682fb5a2c99c7a7ce6b37429489bbd208fef1e",
+  "claims": [
+    {
+      "id": "claim_4410ffb55f1043d6ae0b7f88aaadadb3",
+      "statement": "The infrastructure is defined and managed using Pulumi with Python for consistent deployments.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py#L7-L104",
+          "version": "repo-lines-v1:sha256:1591df4561adc3c6fef2ad89f96b75ba35d53fa9c1c0e9b73bd13db37b59c459:eyJzZWxlY3RlZExpbmVDb3VudCI6OTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkODBlZTQzZDZmYjRiZGYyOGIwYzEzNTBjMDNlZGIxMTZmYjNkMjJhZjk3ZmM1NGUxMjBmYTFhNzM1M2UxNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5MmIyNDMwODUwYzA2NDU2NGJhNGMxYjI1ZDI0ZDdiZTAyYmI4MDIxYzdiZDUzZGEzYzliY2JiNDI3MWZiMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkZjRlZGMwOWRjYzI4YTlhOTg0NWNjODNlNTc0MTNiZjFkNTJmNTJlN2M3YTFlMzlkNjUxMDc3OTg1NTY0MTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzMzM3MDQxNzg0YmEwYzg0NjkzMTdmZTc0MjU4NDcwODk4NDIwMDEzYzYyYTA5MDQ0OGQwNjc5Yjc1YTIwZWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cca04ef032e54990bebd4ebf17cee90b",
+      "statement": "The API service provides search and retrieval endpoints implemented with the FastAPI framework and utilizes Qdrant for vector storage.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/pyproject.toml#L8-L10",
+          "version": "repo-lines-v1:sha256:cbe0babd540a0fb9a73c5b9d19eb4eabbb994d9b34fd7dacb9329cb805a2a07f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Y5MzlmZDRmM2NjNGE2ZGI5YjFkZDFiNjU1MTY4ZjliNDU1OTNkODU2NTFkYmM2NGEwNjEyNjljZmQ0MTEyMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDRjNzAwZDRjZDUzZDg3YzNkZmM5NGQxMDc3NGY1N2I3ODAxZTQ2ZGQ2YTVlMWU5NWYwYzVhMmEwM2Q0MjMwMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTU3N2VlMGYxY2UzMjEwM2Y4YmU5ZmNhNGRmNTY5YjJmZGFiMGM5NzJlZmRiMWVjNjdjMDQwMmRlMDQ2OTk5MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTQxNWI3ZGU5YmFmNWRiMWNiMDFmZmJmYTY4NDFhODg2Mzk4N2E2OWFhMjc5NjcxZjc0ZDg1YjgyNzcxYWM4ZSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.0",
+    "at": "2026-08-26T08:35:55.733Z"
+  }
+}
