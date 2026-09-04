@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f2bbb174e453f9c8ab9430c6371730b52358aed364e8eee5049561ada6924fc0",
+  "pageVersion": "sha256:07067dbeec07661256115870b1c9a4b90ac7be81641494212a4ffe96714fa55d",
   "claims": [
     {
       "id": "claim_b7ca4b9096444c3b9f6ee35da5f3eb5b",
@@ -31,10 +31,20 @@
           "version": "repo-lines-v1:sha256:03f12bc9ea0826af4d935dc712589833022dc2231f1e9c4b2de93e69ff555c7b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxYzA1ZmY4ZDVmNjc5NDBkYzQwMTg1NTQxMTczYjhhYmFjMzZmNzAwODQxOTdlNDYxMjI2ZDJiZjAzMDhlODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NjRjOTA5YjUzODM0MWUzMWFkNjdjZjU1MTdmOTY3MzQzOGZiYmRkNzUxMzFmYzZkMmExOTllM2QzZjZmMzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1ZjUyNDBiYzM1NjFjNjhiY2JmMWU1ODkwNmYxYTI5ZDY5ZjUxZTc0ZjgyY2Q2NGU5ZjhiYzU3M2NkMTY0YTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwN2Q2MDJkZGYxMWExYTkyNGY2NTZjNTNiNmIxOTA1YTFjZTliMWFlMTgxYWUzOTVjN2Q2NzMyNjExYmM5ZDIifQ"
         }
       ]
+    },
+    {
+      "id": "claim_030264e82f91420395e0be858c70e0e1",
+      "statement": "The API Service manages the lifecycle of the asynchronous Qdrant client connection pool using FastAPI's lifespan mechanism, ensuring connections are initialized at startup and closed at shutdown.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/main.py#L14-L23",
+          "version": "repo-lines-v1:sha256:4af4d857b537c1e7cbc94a7a5e5bf07d1c433088f052a46918ae68c8c6c6e71a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3Y2ZmM2YxNzg0MmRlYzZlN2U5MWMzZTNiOGZjZTBhODIyZmMzMTEyNzM4MWIwMGY0NGE5ZjEzMzMzMDNhMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmYTk2ZDJiZTE3ZGY5NDQ3OTQ0ZjFkMWRiNWJlZmI3OWIxNzljNzg4OWJlYzg4NzA3NDVmNTlkZjkyNzgwZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmMjM0OTRlMTFjOTRjZWI5MTgwZjU4ODZkNTg1NGNkN2Y0YzVlNTM5OTIwZjM5MTU5NDkxYzUzZmFkZWQ2YTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzNjM0ZTk5ZWVmMDcxYTFmNmEyYzY2ODZmOWVhZGI3NDBiODE3ZDJlZWI5NWNhNGFkYzI5OGI4OGZiNmM3NzIifQ"
+        }
+      ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.4.0",
-    "at": "2026-08-26T08:35:55.733Z"
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
   }
 }

@@ -1,34 +1,47 @@
 ---
-type: CI/CD Documentation
-title: GitHub Actions
-description: Automated GitHub Actions workflows for OpenWiki documentation updates and CI/CD.
-tags: [github-actions, ci-cd, openwiki, deployment]
+type: documentation
+title: CI/CD Workflows
+description: Overview of the GitHub Actions workflows used for continuous integration, deployment, and documentation synchronization.
+tags: [github-actions, ci-cd, automation, deployment]
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-04T12:25:44.572Z
+sources:
+  - id: openwiki-source-164e2da859b5277df81c7d94
+    resource: repo://.github/workflows/ci.yml
+  - id: openwiki-source-6766b7a0c14857435d2077c9
+    resource: repo://.github/workflows/deploy.yml
+  - id: openwiki-source-6d4b4e707b8d60b6ccfa3425
+    resource: repo://.github/workflows/openwiki-update.yml
+generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 
-# GitHub Actions
+# CI/CD Workflows
 
-This repository uses GitHub Actions to automate the process of keeping the OpenWiki documentation up-to-date.
+The repository leverages GitHub Actions for automated CI/CD and documentation management. These workflows are defined in `.github/workflows/` and provide end-to-end automation for testing, quality assurance, infrastructure deployment, and wiki updates.
 
-## OpenWiki Update Workflow
+## Core Pipelines
 
-The workflow is defined in [`.github/workflows/openwiki-update.yml`](../../.github/workflows/openwiki-update.yml). It runs on a schedule (daily at 8:00 UTC) and can also be triggered manually.
+### Continuous Integration (CI)
+Defined in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), this workflow triggers on every push or pull request to the `main` or `master` branches (ignoring documentation-only changes). It ensures code quality and correctness through:
+* **Environment Setup:** Uses `uv` for dependency management and Python installation.
+* **Static Analysis:** Runs `ruff` for linting and formatting.
+* **Type Checking:** Validates code using `pyright`.
+* **Testing:** Executes the full suite of unit and integration tests via `pytest`.
 
-The workflow performs the following steps:
+### Deployment
+Defined in [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml), this workflow executes automatically following a successful CI run or can be triggered manually via `workflow_dispatch`. It handles:
+* **Artifact Preparation:** Builds the necessary deployment artifacts (e.g., Lambda functions).
+* **Infrastructure as Code (IaC):** Uses [Pulumi](https://www.pulumi.com/) to deploy and update cloud infrastructure.
+* **Authentication:** Utilizes OIDC for secure AWS credential management and requires specific repository secrets for service configurations (Qdrant, etc.).
 
-1.  **Checks out the repository:** It starts by checking out the latest version of the code.
-2.  **Sets up Node.js:** It installs Node.js version 22.
-3.  **Installs OpenWiki:** It installs the `openwiki` CLI tool globally using `npm`.
-4.  **Runs OpenWiki:** It runs the `openwiki code --update --print` command to update the documentation in the `/openwiki` directory. This step now includes several environment variables to configure the OpenWiki run:
-    *   `OPENWIKI_PROVIDER`: Sets the provider to `gemini`.
-    *   `GEMINI_API_KEY`: Uses a secret to authenticate with the Gemini API.
-    *   `OPENWIKI_MODEL_ID`: Specifies the model to be used as `gemini-3.1-flash-lite`.
-    *   `LANGSMITH_API_KEY`: Configures LangSmith for tracing.
-    *   `LANGCHAIN_PROJECT`: Sets the LangChain project name to `openwiki`.
-    *   `LANGCHAIN_TRACING_V2`: Set to `false` for tracing status.
-5.  **Creates a pull request:** It uses the `peter-evans/create-pull-request` action to create a pull request with the updated documentation. The pull request now includes changes to the following files:
-    *   `openwiki/`
-    *   `AGENTS.md`
-    *   `CLAUDE.md`
-    *   `.github/workflows/openwiki-update.yml`
+### Documentation Sync
+Defined in [`.github/workflows/openwiki-update.yml`](../../.github/workflows/openwiki-update.yml), this workflow runs daily at 08:00 UTC to synchronize the OpenWiki documentation with the current repository state.
+* **Mechanism:** It installs the OpenWiki CLI and executes an update run.
+* **Intelligence:** Configured to use a LLM provider (Gemini) to generate or update documentation content.
+* **Automation:** Automatically submits the updates via a Pull Request, maintaining a living documentation source.
 
-This automated process ensures that the documentation stays in sync with the codebase without manual intervention.
+## Configuration & Security
+- **Secrets:** Sensitive credentials (API keys, deployment secrets) are stored in GitHub Secrets.
+- **Roles:** The deployment pipeline assumes an IAM role via OIDC to interact with AWS resources, following the principle of least privilege.
+- **State Management:** Pulumi state is managed via an external S3 bucket, as configured in the deployment workflow.

@@ -1,4 +1,4 @@
 # Files
 
-- [GitHub Actions](github-actions.md) - Automated GitHub Actions workflows for OpenWiki documentation updates and CI/CD.
-- [Deployment and Infrastructure as Code (IaC)](iac.md) - Guide for deploying and managing the Serverless RAG Platform infrastructure using Pulumi.
+- [CI/CD Workflows](github-actions.md) - Overview of the GitHub Actions workflows used for continuous integration, deployment, and documentation synchronization.
+- [Infrastructure as Code Operations](iac.md) - Operational overview of managing AWS infrastructure using Pulumi for the Serverless RAG Platform.

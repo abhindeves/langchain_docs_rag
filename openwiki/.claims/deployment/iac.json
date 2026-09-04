@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f42da5fed007472dbc4854e1b1ea637acbc3caaf2f169e8f15c60fde18942799",
+  "claims": [
+    {
+      "id": "claim_e189f6bdc4ae4ee0b77a02f0259b72ed",
+      "statement": "The infrastructure is managed declaratively using Pulumi with Python, defining AWS resources like S3, DynamoDB, SQS, and Lambda.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_d8371803111744538889cd7d872dcabd",
+      "statement": "Pulumi manages state externally, typically using the Pulumi Service, to track the association between code definitions and actual AWS resources.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec69b85dc3864baca2201616a4307329",
+      "statement": "Operations are performed via the Pulumi CLI, using commands like `pulumi preview` to evaluate changes and `pulumi up` to apply infrastructure updates.",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md",
+          "version": "repo-file-v1:sha256:2ec4aab11853f3c86ea65c983cde44cddf2a079a14c98d7e69235939fdc91de1"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
+  }
+}

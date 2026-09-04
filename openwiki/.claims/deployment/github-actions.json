@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e9e58b25781b8fd4ddea1472457740daa9d691224d5ec3fa385fc245021cafae",
+  "claims": [
+    {
+      "id": "claim_5fa411e1ac8c4a82b2b7401f74ae5acb",
+      "statement": "The CI workflow ensures code quality through static analysis, type checking, and testing on pushes and pull requests.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml",
+          "version": "repo-file-v1:sha256:e17a1b8f9e458b7cf32c080522458d1048d5c4db83457ddb4caf7537f081bb74"
+        }
+      ]
+    },
+    {
+      "id": "claim_6b5579ccde754fcf94777385b0c65346",
+      "statement": "The deployment workflow uses Pulumi to manage infrastructure and is triggered by successful CI runs or manual dispatch.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/deploy.yml",
+          "version": "repo-file-v1:sha256:32c209bad7f031be79659c75fd4756744af54ff17712a62d6e14174538524e13"
+        }
+      ]
+    },
+    {
+      "id": "claim_de52326ea16f4e64b4eff6c431333eee",
+      "statement": "The documentation sync workflow runs daily, using LLMs to keep OpenWiki documentation synchronized via automated pull requests.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml",
+          "version": "repo-file-v1:sha256:a49265c745685edb3a06cf8b124372fb30598adadc01b9f16b1e577dd6c067c6"
+        }
+      ]
+    },
+    {
+      "id": "claim_92eea4b0c35e4ed28c17b61d924f578b",
+      "statement": "Deployment workflows use OIDC for secure, short-lived AWS credential management to follow the principle of least privilege.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/deploy.yml#L16-L18",
+          "version": "repo-lines-v1:sha256:9390e596d63c6b95ee710ef11358e619783e20f20935d2295ea8046d5746cef9:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjUxNzRmZDI1NWNlNTY3MGI0NzhhZjA0NmNkNDNjNjczNGYyMDY1OWNkMTEyMzg1Zjc1MzMwNzU4M2JmY2RlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmY4NDcxMWQ2N2Q1ZWZkOWE0NzIwMzA5ZmVlMmY2YTFkNDE4MDk2NjM4ZjBhMTY1NTEyNTUzZDdiZWJmZjA4MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjA5ODcyNDkzZTc3ZGRiODQyNGU3ODMyZTllZDZiNmVjZTZjMzljYTAyNzg1NWRiNzgwNmMzMmEzMjdlMTNkMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjcyOGE5NzA4ODQ0YWYxNWM2MTM4M2RkMmY4NjIxZGM3NWFiNTYxODQzZjUxMWJmMGVjZjA3ZTIzN2FhZDAwMiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
+  }
+}

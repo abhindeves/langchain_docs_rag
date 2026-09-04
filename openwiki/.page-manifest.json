@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture/api-service.md": {
+      "pageVersion": "sha256:07067dbeec07661256115870b1c9a4b90ac7be81641494212a4ffe96714fa55d",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/architecture/infrastructure.md": {
+      "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/architecture/ingestion-pipeline.md": {
+      "pageVersion": "sha256:1ecb0975521dcb15aa3827bafe710375761e41d5c21819ad526ca932d2aa9ff3",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/architecture/overview.md": {
+      "pageVersion": "sha256:c4ccbde4f1b39480889a5a5f9bc0f9d1b20b02fe38fee21863f7cba1d1d17d46",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/deployment/github-actions.md": {
+      "pageVersion": "sha256:e9e58b25781b8fd4ddea1472457740daa9d691224d5ec3fa385fc245021cafae",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/deployment/iac.md": {
+      "pageVersion": "sha256:f42da5fed007472dbc4854e1b1ea637acbc3caaf2f169e8f15c60fde18942799",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:fbf73edb555d2d2ef3367ca67c160c2bc71fe8733583f87e5aed8cf96dff65c7",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/services/api.md": {
+      "pageVersion": "sha256:d05048004aa70ab0610ce7a35b62a573b000ec90182696abcf8415252dad6334",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/services/ingestion.md": {
+      "pageVersion": "sha256:4f558a4253d5d84fb94ac6ef207fc5e272c25e1d432d0d6601c5b80237fc6d0a",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    },
+    "/openwiki/testing/strategy.md": {
+      "pageVersion": "sha256:6a65227dd52905dec2b7422d989c68a68c32f40a1ade80ab0e98227bbc2a0729",
+      "completedBy": "openwiki/0.5.0",
+      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb",
+      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
+      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48"
+    }
+  }
+}

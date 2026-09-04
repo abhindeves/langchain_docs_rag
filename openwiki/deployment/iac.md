@@ -1,39 +1,52 @@
 ---
 type: Deployment Guide
-title: Deployment and Infrastructure as Code (IaC)
-description: Guide for deploying and managing the Serverless RAG Platform infrastructure using Pulumi.
-tags: [deployment, pulumi, iac, aws]
+title: Infrastructure as Code Operations
+description: Operational overview of managing AWS infrastructure using Pulumi for the Serverless RAG Platform.
+tags: [deployment, pulumi, iac, aws, operations]
+verified:
+  - by: openwiki/0.5.0
+    at: 2026-09-04T12:25:44.572Z
+sources:
+  - id: openwiki-source-45429c71bab6f9779e370ede
+    resource: repo://infra/__main__.py
+  - id: openwiki-source-862443b88cee5adeb9e4ba55
+    resource: repo://infra/README.md
+generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 
-# Deployment and Infrastructure as Code (IaC)
+# Infrastructure as Code Operations
 
-This project uses [Pulumi](https://www.pulumi.com/) to manage all AWS infrastructure as code. The entire stack, from S3 buckets to Lambda functions, is defined in Python, enabling version-controlled, repeatable deployments.
+This project utilizes [Pulumi](https://www.pulumi.com/) to manage the lifecycle of all AWS infrastructure. By defining resources as code in Python, we achieve repeatable, version-controlled, and automated cloud deployments.
 
-## Infrastructure Overview
+## IaC Management with Pulumi
 
-The Pulumi program, located in the `/infra` directory, provisions the following key AWS resources:
+Our IaC strategy focuses on declarative resource management, where the desired state of the infrastructure is described in the `/infra` directory.
 
-*   **Amazon DynamoDB:** A `DocumentSyncStatus` table is created to track the state of each document throughout the ingestion pipeline. This table uses a `doc_id` as its primary key and operates in `PAY_PER_REQUEST` billing mode for cost efficiency.
-*   **Amazon S3:** An S3 bucket (`rag-document-store`) is provisioned to store raw and processed documents.
-*   **Amazon SQS:**
-    *   **Crawler Queue:** An SQS queue (`rag-crawler-queue`) with an associated Dead-Letter Queue (DLQ) is set up to manage the crawling of individual URLs. This decouples the master crawler from the individual worker crawlers.
-    *   **Ingestion Queue:** Another SQS queue and DLQ (`rag-ingestion-queue`) are used to manage the processing of documents after they have been crawled and uploaded to S3.
-*   **AWS Lambda:** The Pulumi script defines the necessary Lambda functions for the master crawler, manifest crawler, and the s3 event worker. It sets up their execution roles, permissions, environment variables, and event source mappings (e.g., connecting a Lambda to an SQS queue or an S3 bucket event).
-*   **IAM Roles and Policies:** Pulumi creates the necessary IAM roles and policies to grant the Lambda functions the permissions they need to access other AWS resources like S3, SQS, DynamoDB, and Bedrock.
-*   **Amazon EventBridge:** A scheduled rule is created to trigger the master crawler Lambda function on a daily cron schedule.
+### State Management
+Pulumi maintains a "state file" that maps our code definitions to the actual physical resources in AWS.
+*   **Default Behavior:** By default, Pulumi stores this state in the [Pulumi Service](https://www.pulumi.com/docs/intro/pulumi-service/), which provides a managed backend for state concurrency locking and history tracking.
+*   **Operational Note:** It is critical to ensure that state remains synchronized. Never manually modify AWS resources created by Pulumi via the AWS Console, as this leads to "configuration drift," where the actual infrastructure state diverges from the code.
 
-### Source Files
+### Provisioning Workflow
+The provisioning lifecycle follows a standard pattern:
 
-*   **[`infra/__main__.py`](../../infra/__main__.py):** This is the main entry point for the Pulumi program. It contains the definitions for all the AWS resources listed above.
-*   **[`infra/Pulumi.yaml`](../../infra/Pulumi.yaml):** The project file for the Pulumi application.
-*   **[`infra/Pulumi.dev.yaml`](../../infra/Pulumi.dev.yaml):** Stack-specific configuration for the `dev` environment.
+1.  **Change Definition:** Developers modify resources in [`infra/__main__.py`](../../infra/__main__.py).
+2.  **Preview (`pulumi preview`):** Evaluates the differences between the current state and the proposed configuration. This step is essential for security auditing, as it highlights destructive changes (e.g., replacing a DynamoDB table).
+3.  **Deployment (`pulumi up`):** Applies the changes to the AWS environment. Pulumi calculates the dependency graph and executes create, update, or delete operations in the correct order.
 
-## Deployment
+## Infrastructure Components
 
-To deploy the infrastructure, you can use the Pulumi CLI. The general steps are outlined in the [`infra/README.md`](../../infra/README.md) file and involve:
+The infrastructure is modularized into defined AWS resources:
 
-1.  **Initializing the project:** `pulumi new aws-python`
-2.  **Previewing changes:** `pulumi preview`
-3.  **Deploying the stack:** `pulumi up`
+*   **Persistence:** Amazon DynamoDB (`DocumentSyncStatus` table) maintains the ingestion state.
+*   **Storage:** Amazon S3 (`rag-document-store`) holds source and processed documents.
+*   **Messaging:** SQS queues (`rag-ingestion-queue`, `rag-crawler-queue`) facilitate asynchronous task decoupling, complete with Dead-Letter Queues (DLQ) for error handling.
+*   **Compute:** AWS Lambda functions are managed with specific execution roles and event source mappings.
+*   **Orchestration:** Amazon EventBridge rules provide serverless task scheduling.
 
-This IaC setup ensures that the entire RAG platform can be deployed, updated, and torn down in a consistent and automated manner.
+## Managing Configurations
+Environment-specific settings (like region or variable overrides) are managed through Pulumi stack configuration files:
+*   `infra/Pulumi.yaml`: Global project configuration.
+*   `infra/Pulumi.dev.yaml`: Stack-specific overrides for the development environment.
+
+For further details on operational commands, refer to [`infra/README.md`](../../infra/README.md).
