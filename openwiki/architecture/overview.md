@@ -4,19 +4,43 @@ title: System Architecture Overview
 description: High-level architectural model of the RAG platform, focusing on the event-driven ingestion pipeline and data lifecycle from raw source to vector store.
 tags: [architecture, aws, serverless, rag]
 verified:
-  - by: openwiki/0.4.0
-    at: 2026-08-26T08:35:55.733Z
+  - by: openwiki/0.5.0
+    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
   - id: openwiki-source-af70149a354536b126186304
     resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md
-generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
+generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 
 # System Architecture Overview
 
-This document provides a high-level model of the Serverless RAG Platform's architecture. The system employs a decoupled, event-driven design to ensure scalability, resilience, and cost-efficiency when processing documents.
+This document provides a high-level model of the Serverless RAG Platform's architecture. The system comprises three primary subsystems: the API Service, the Ingestion Pipeline, and the Evaluation Service.
+
+## High-Level Communication Flow
+
+The following diagram illustrates the interaction between the system's core components.
+
+```mermaid
+flowchart TB
+    API[API Service]
+    Ingestion[Ingestion Pipeline]
+    Eval[Evaluation Service]
+    
+    User((User)) --> API
+    API --> Ingestion
+    API --> Eval
+    Ingestion --> Qdrant[(Vector DB)]
+    Eval --> Qdrant
+```
+*System component interaction diagram.*
+
+## Component Responsibilities
+
+*   **API Service:** Acts as the primary entrypoint for users, handling requests and coordinating tasks across the pipeline and evaluation services.
+*   **Ingestion Pipeline:** Automates the transformation of external content into searchable vector embeddings.
+*   **Evaluation Service:** Assesses the quality and relevance of retrieved content and generated responses against defined benchmarks.
 
 ## Data Lifecycle and Control Flow
 
@@ -34,8 +58,9 @@ flowchart LR
     Worker --> Qdrant[(Qdrant Vector DB)]
     Worker --> DDB[(DynamoDB Status)]
 ```
+*Ingestion pipeline flow diagram.*
 
-### Component Roles
+### Ingestion Pipeline Details
 
 *   **Dispatch (EventBridge & Master Crawler):** An EventBridge Scheduler initiates a scheduled crawl. The Master Crawler Lambda identifies source URLs and dispatches them to an SQS queue.
 *   **Crawling & Deduplication (SQS & Manifest Crawler):** The Manifest Crawler consumes queue messages. It performs lightweight deduplication against state manifests stored in S3, avoiding expensive database lookups. New or updated content is saved to raw storage (S3).

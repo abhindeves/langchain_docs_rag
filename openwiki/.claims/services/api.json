@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d05048004aa70ab0610ce7a35b62a573b000ec90182696abcf8415252dad6334",
+  "claims": [
+    {
+      "id": "claim_17f72677245e4a5fb01f6cf3f401c1e3",
+      "statement": "The API service uses a FastAPI lifespan context manager to initialize and manage an asynchronous Qdrant connection pool.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/main.py#L14-L23",
+          "version": "repo-lines-v1:sha256:4af4d857b537c1e7cbc94a7a5e5bf07d1c433088f052a46918ae68c8c6c6e71a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3Y2ZmM2YxNzg0MmRlYzZlN2U5MWMzZTNiOGZjZTBhODIyZmMzMTEyNzM4MWIwMGY0NGE5ZjEzMzMzMDNhMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmYTk2ZDJiZTE3ZGY5NDQ3OTQ0ZjFkMWRiNWJlZmI3OWIxNzljNzg4OWJlYzg4NzA3NDVmNTlkZjkyNzgwZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmMjM0OTRlMTFjOTRjZWI5MTgwZjU4ODZkNTg1NGNkN2Y0YzVlNTM5OTIwZjM5MTU5NDkxYzUzZmFkZWQ2YTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzNjM0ZTk5ZWVmMDcxYTFmNmEyYzY2ODZmOWVhZGI3NDBiODE3ZDJlZWI5NWNhNGFkYzI5OGI4OGZiNmM3NzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b69ce566ee2548beaa8d2b6ad7764404",
+      "statement": "The /health/readiness endpoint verifies database availability by performing an asynchronous call to list Qdrant collections.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/routes/health.py#L17-L35",
+          "version": "repo-lines-v1:sha256:52a65016b59962320e345077f5d820083a35631f6273bfe0cbff64442480f9af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NGEzZDk3YmViODA4ZDM1OWMwZWRjNGMyOTEzZTEyNmZkNzc3ODcxZjA2MTRkMWJiZGM2Y2RmN2Q2MDY3YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5Mzk3ZWExYjYwMmUzZTIwNzJmYzA4ZTg3MTEyYTRlZDcxYzJlNGYwODY1ZjQ5ZDg0MTk4ZDIxZGNjMDE1MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMzE1OTUxYWYxZjBhYjc5YTgyMzI0MjNhYWNmMTU0OGYzMjcwNTk1NDliYzU2MDhhNzVlNjBmMGM1ZDhjMDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_758d316d3a8547a2a71dbfcabbd99f3e",
+      "statement": "Core API business logic for retrieval, chat, and embeddings is versioned under the /api/v1 route prefix.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/router.py#L7-L12",
+          "version": "repo-lines-v1:sha256:6d4ac83e7b3a24e98cd116385e01098593146db3480cc4d73c8ac1ecc88341c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGY1M2MzYzE0NDI3OTVhOWRkNTFiNWQ3MmJjYWMyN2QzOWFmYWQyNmQxYWUxMjAwNjIzNWU2ZTQ5NTdjZmI1MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmFmOWQ2ZjdiZjQxMTkzM2NkMjEzOGUxZWRiNWFkNjZjMWIzZDNhZTk1NzhmODQ3NDQ1NjkyYTlmMTM0NmQ4ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2VlYjRlNDc2ZmI5YzIyNDM1NTI2YTBlZTM4YjYyOTg1ODc1YThjZWRhZjBhZWYwM2U3MmZkZTViNjJiZTBiZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
+  }
+}

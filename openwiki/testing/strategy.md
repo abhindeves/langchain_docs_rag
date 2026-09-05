@@ -4,12 +4,12 @@ title: Testing Strategy
 description: Standardized testing patterns including FastAPI TestClient, mocking with unittest.mock, and service integration.
 tags: [testing, quality-assurance, fastapi, mocking]
 verified:
-  - by: openwiki/0.4.0
-    at: 2026-08-26T08:35:55.733Z
+  - by: openwiki/0.5.0
+    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-ec3c0bb228befdde4c7c06f9
     resource: repo://services/api-service/tests/test_main.py
-generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
+generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 
 The testing strategy for the repository focuses on ensuring high code quality and reliable service behavior through a combination of unit tests, mocking external dependencies, and integration-ready test suites.
@@ -39,9 +39,18 @@ While unit tests mock infrastructure, integration testing should focus on verify
 - **Mocked AWS Services**: For AWS-dependent services, integration testing should utilize `localstack` or service-specific mock libraries to simulate AWS responses and behavior in a local, reproducible environment.
 
 ## Testing Standards
+- **Running Tests Locally**: All tests can be executed from the project root using `pytest`. For services that require async support, use `pytest` with the `anyio` plugin (standard in FastAPI environments).
+  ```bash
+  # Run all tests
+  pytest
+
+  # Run tests for a specific service
+  pytest services/api-service/tests/
+  ```
+
 - **Isolation**: Each test must be independent.
 - **Coverage**: Critical paths, error handling, and edge cases (e.g., connection failures) must be covered.
-- **Async Handling**: Use `AsyncMock` for any asynchronous calls to external services.
+- **Async Handling**: Use `AsyncMock` for any asynchronous calls to external services and `@pytest.mark.anyio` for async test functions.
 - **Lifecycle Management**: Ensure tests correctly utilize the `TestClient` context manager to simulate production-like application states.
 
 ## Example: API Health Checks

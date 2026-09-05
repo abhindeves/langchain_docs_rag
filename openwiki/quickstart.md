@@ -1,33 +1,42 @@
 ---
 type: Concept
 title: Quickstart
-description: Onboarding guide for the RAG platform, covering the architecture, components, and local development environment setup.
+description: Central entry point for developers, outlining the RAG platform architecture, repository structure, and local development workflows.
 tags: [quickstart, onboarding, architecture]
 verified:
-  - by: openwiki/0.4.0
-    at: 2026-08-26T08:35:55.733Z
+  - by: openwiki/0.5.0
+    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
   - id: openwiki-source-b6f4e31ca8dfe49b64742655
     resource: repo://services/api-service/pyproject.toml
-generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
+generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 
 # Quickstart
 
-Welcome to the RAG (Retrieval-Augmented Generation) Platform. This guide helps you understand our serverless architecture and set up your local development environment.
+Welcome to the RAG (Retrieval-Augmented Generation) Platform. This guide provides a central entry point for developers to understand our serverless-first architecture, service documentation, and standard operating procedures.
 
 ## Architecture Overview
 
 Our platform is a production-grade, event-driven system built on AWS using a serverless-first approach. It is designed to be highly scalable, decoupled, and cost-efficient.
 
-### Key Components
+*   [System Overview](./architecture/overview.md)
+*   [API Service Architecture](./architecture/api-service.md)
+*   [Ingestion Pipeline Architecture](./architecture/ingestion-pipeline.md)
+*   [Infrastructure Architecture](./architecture/infrastructure.md)
 
-*   **[System Architecture Overview](./architecture/overview.md):** The high-level design and data flow.
-*   **[Infrastructure as Code](./architecture/infrastructure.md):** Managed using [Pulumi](https://www.pulumi.com/) with Python.
-*   **[Ingestion Pipeline](./architecture/ingestion-pipeline.md):** Processes documents asynchronously via SQS and AWS Lambda, leveraging Amazon Bedrock for embeddings and storing vectors in Qdrant.
-*   **[API Service](./architecture/api-service.md):** The FastAPI-based interface for handling search and retrieval requests.
+## Service Documentation
+
+*   [API Service Reference](./services/api.md)
+*   [Ingestion Service Reference](./services/ingestion.md)
+
+## Development and Deployment
+
+*   [Testing Strategy](./testing/strategy.md)
+*   [Infrastructure as Code Operations](./deployment/iac.md)
+*   [CI/CD Workflows](./deployment/github-actions.md)
 
 ## Getting Started
 
@@ -63,8 +72,3 @@ Our platform is a production-grade, event-driven system built on AWS using a ser
     ```bash
     pulumi up
     ```
-
-## Development Workflow
-
-*   **Testing:** We follow a standardized [Testing Strategy](./testing/strategy.md). Run unit and integration tests using `pytest`.
-*   **Documentation:** Updates to this wiki are handled via GitHub Actions as documented in the deployment guide.

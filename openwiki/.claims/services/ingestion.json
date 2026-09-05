@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:4f558a4253d5d84fb94ac6ef207fc5e272c25e1d432d0d6601c5b80237fc6d0a",
+  "claims": [
+    {
+      "id": "claim_64ff05cec5084a7ead222a7cccd20da5",
+      "statement": "The Ingestion Service uses a multi-stage, event-driven architecture orchestrated by AWS Lambda, SQS, and S3 to perform document crawling, deduplication, chunking, and embedding.",
+      "evidence": [
+        {
+          "resource": "repo://services/indexer-service/src/indexer/lambda_handler.py",
+          "version": "repo-file-v1:sha256:82b611c8cfe3d0090ad6a506d351315a270c017d62fd69da655b0c5756496b69"
+        },
+        {
+          "resource": "repo://services/indexer-service/src/indexer/manifest_crawler.py",
+          "version": "repo-file-v1:sha256:b9d1976f5b9924fa90f615ddf667751fbfdf1d0ac9ad2ba9d45489270f0fc040"
+        }
+      ]
+    },
+    {
+      "id": "claim_db0d165cec6a4671b3b487b5b19a7410",
+      "statement": "The Ingestion Service minimizes cold starts and package size by avoiding heavy dependencies, utilizing lightweight custom text splitters, and interacting directly with the Bedrock API.",
+      "evidence": [
+        {
+          "resource": "repo://docs/adr/0002-decouple-ingestion-dependencies.md",
+          "version": "repo-file-v1:sha256:2f314a8743b26d69ca63e5a7a0683d181152ab72c329dd4a3a48e42622c0b551"
+        }
+      ]
+    },
+    {
+      "id": "claim_9d9499c67faf4fdda38544dffdb435c7",
+      "statement": "The service implements an S3-based manifest deduplication strategy to reduce DynamoDB read operations and maintains document lifecycle state via DynamoDB.",
+      "evidence": [
+        {
+          "resource": "repo://services/indexer-service/src/indexer/manifest_crawler.py",
+          "version": "repo-file-v1:sha256:b9d1976f5b9924fa90f615ddf667751fbfdf1d0ac9ad2ba9d45489270f0fc040"
+        },
+        {
+          "resource": "repo://services/indexer-service/src/indexer/storage.py",
+          "version": "repo-file-v1:sha256:c1b02a704466a390873e05d964beae3b4ffc38c04e6c54b93ebe9400a24ab0fa"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
+  }
+}

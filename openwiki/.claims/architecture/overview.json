@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f8962ce8e5132ac41b48f6f4731ce95a5ab6138324c188c7b6954b133a40f030",
+  "pageVersion": "sha256:c4ccbde4f1b39480889a5a5f9bc0f9d1b20b02fe38fee21863f7cba1d1d17d46",
   "claims": [
     {
       "id": "claim_a51220e625fe425792aec289ec438ba0",
-      "statement": "The RAG platform utilizes an event-driven serverless architecture that decouples document discovery, crawling, processing, and embedding.",
+      "statement": "The system architecture consists of three primary components: the API Service, the Ingestion Pipeline, and the Evaluation Service, operating within an event-driven serverless environment.",
       "evidence": [
         {
           "resource": "repo://docs/adr/0001-manifest-crawler-sqs-fanout.md",
@@ -34,7 +34,7 @@
     }
   ],
   "verification": {
-    "by": "openwiki/0.4.0",
-    "at": "2026-08-26T08:35:55.733Z"
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-04T12:25:44.572Z"
   }
 }
