@@ -5,7 +5,7 @@ description: Overview of the RAG API service, detailing its architecture, hybrid
 tags: [architecture, api, rag, search, qdrant, fastapi]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-c8424396153b7ec9abf7e07d
     resource: repo://services/api-service/src/api/main.py

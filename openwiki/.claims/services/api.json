@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d05048004aa70ab0610ce7a35b62a573b000ec90182696abcf8415252dad6334",
+  "pageVersion": "sha256:87a07a4cf19ad2af02fd952b7c469c2cad388cfe4ae915efe75648622291c729",
   "claims": [
     {
       "id": "claim_17f72677245e4a5fb01f6cf3f401c1e3",
@@ -31,10 +31,30 @@
           "version": "repo-lines-v1:sha256:6d4ac83e7b3a24e98cd116385e01098593146db3480cc4d73c8ac1ecc88341c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGY1M2MzYzE0NDI3OTVhOWRkNTFiNWQ3MmJjYWMyN2QzOWFmYWQyNmQxYWUxMjAwNjIzNWU2ZTQ5NTdjZmI1MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmFmOWQ2ZjdiZjQxMTkzM2NkMjEzOGUxZWRiNWFkNjZjMWIzZDNhZTk1NzhmODQ3NDQ1NjkyYTlmMTM0NmQ4ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2VlYjRlNDc2ZmI5YzIyNDM1NTI2YTBlZTM4YjYyOTg1ODc1YThjZWRhZjBhZWYwM2U3MmZkZTViNjJiZTBiZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         }
       ]
+    },
+    {
+      "id": "claim_6e472f4bd8d24373bbac224107dcddd8",
+      "statement": "The API service supports hybrid retrieval by executing dense vector search and BM25 sparse vector search, combining results via Reciprocal Rank Fusion (RRF) on the Qdrant database.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/v1/retrieval.py#L63-L86",
+          "version": "repo-lines-v1:sha256:01bca6dcca38d92d6dcad850f38d51dbb80839df5fab4ca401d65ad7840c8987:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5OWQ0N2VmNjBmMjczZTBiOGQyOGYzOTgxODQ5Y2EwNjBmNjk4OTA2OGY0NGUwZDJhNGUzZTFiYTc2MjE1MjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3NzAzOGM5ODkxYTc3ODE0OGVmNjlkZTgwYWUyNGFlZWZmOWI0MTRlNzBmMWYxNmJjMGJmMTQ2NjIxMDNmYTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4YjM3ZjU5ODNlNGM0MWU2MDFhY2VjYmYzNmNmMjBmZWZmMDhmZTU0NmUxNWVlMTk0NjFhOWY1OTU3OGY2NTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_59b1c192a1ec45ddbe575adf524c1f34",
+      "statement": "The chat endpoint enables RAG workflows by coordinating retrieval, embedding, and LLM-based generation services.",
+      "evidence": [
+        {
+          "resource": "repo://services/api-service/src/api/v1/chat.py#L48-L50",
+          "version": "repo-lines-v1:sha256:ba151bf1d830dee3daebf5a0563f052800d30a5a61b3f94c480c158eaf2e98bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDQ2MzliN2ZiZTg1MTk1YWU2MGRhNmVlMzg3NTFhNDM0NmQ1Mzk1MWJlNDI1NGIyMGZlZWE0OWY2ZmQzMjNlYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkwOWE1M2E2MThkMDI4ZTFkMzAwMGMwYTdhYmNlZWNiZTVmYjM3ZjRlNTExZWZlNDY2NDNmYWQ2ZTY2ODcyZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjNmZTExYzJiMTY1MjJkYjQ4YzQ4ZTJkNmQ2YzI2MWQ5YWY0ODFkNGRhYTExYmNlOTZjNjQ3Zjc4NzQzMjExMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2NmM2JmNmUzZjEzZTQ3ZTEwM2VjODUyODgwODM4ZDk5NDQ5ZWNjY2YzZTdiMGUzMzdkMDgxYjdjZDUzNzgxYSJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "at": "2026-09-08T12:30:29.951Z"
   }
 }

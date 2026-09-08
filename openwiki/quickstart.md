@@ -5,18 +5,18 @@ description: Central entry point for developers, outlining the RAG platform arch
 tags: [quickstart, onboarding, architecture]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
   - id: openwiki-source-b6f4e31ca8dfe49b64742655
     resource: repo://services/api-service/pyproject.toml
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-08T12:30:29.951Z" }
 ---
 
 # Quickstart
 
-Welcome to the RAG (Retrieval-Augmented Generation) Platform. This guide provides a central entry point for developers to understand our serverless-first architecture, service documentation, and standard operating procedures.
+Welcome to the RAG (Retrieval-Augmented Generation) Platform. This guide provides a central entry point for developers to understand our serverless-first architecture, service documentation, and standard operating procedures for local development and deployment.
 
 ## Architecture Overview
 
@@ -67,7 +67,14 @@ Our platform is a production-grade, event-driven system built on AWS using a ser
     cp .env.example .env
     ```
 
-4.  **Initialize Infrastructure:**
+4.  **Running Services Locally:**
+    You can run the API service locally using Docker Compose:
+    ```bash
+    docker-compose up api-service
+    ```
+    The API will be available at `http://localhost:8000`.
+
+5.  **Initialize Infrastructure:**
     Use Pulumi to preview/deploy infrastructure (requires configured AWS access):
     ```bash
     pulumi up

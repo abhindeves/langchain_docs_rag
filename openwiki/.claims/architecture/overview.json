@@ -1,14 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:c4ccbde4f1b39480889a5a5f9bc0f9d1b20b02fe38fee21863f7cba1d1d17d46",
+  "pageVersion": "sha256:4b11a4a7ca3baeceb9e008b4e559e29d7f38237897156626e48af6132a6f763d",
   "claims": [
     {
       "id": "claim_a51220e625fe425792aec289ec438ba0",
       "statement": "The system architecture consists of three primary components: the API Service, the Ingestion Pipeline, and the Evaluation Service, operating within an event-driven serverless environment.",
       "evidence": [
         {
-          "resource": "repo://docs/adr/0001-manifest-crawler-sqs-fanout.md",
-          "version": "repo-file-v1:sha256:fc4dd7752572ca7254b4ff4cf3d2e3a2a9bef78325199c881ecc0fe72d62c037"
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:0cad2dcf72856ae19c24bbe0d2459cdb7de6e25cda6eb132261d5f47644dca81"
+        },
+        {
+          "resource": "repo://docker-compose.yml",
+          "version": "repo-file-v1:sha256:68d4a999f143432a2ad75db967e8d08e6ae07799ece933debaa94c1d7d461894"
         }
       ]
     },
@@ -35,6 +39,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "at": "2026-09-08T12:30:29.951Z"
   }
 }

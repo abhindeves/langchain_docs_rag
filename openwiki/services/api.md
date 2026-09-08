@@ -5,7 +5,7 @@ description: Documentation for the FastAPI-based API Service providing query, re
 tags: [api, fastapi, service, retrieval, chat]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-c8424396153b7ec9abf7e07d
     resource: repo://services/api-service/src/api/main.py
@@ -13,7 +13,11 @@ sources:
     resource: repo://services/api-service/src/api/router.py
   - id: openwiki-source-c39400c05ea64b332a301542
     resource: repo://services/api-service/src/api/routes/health.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+  - id: openwiki-source-adf3fe31e1fb13694d0589ef
+    resource: repo://services/api-service/src/api/v1/chat.py
+  - id: openwiki-source-97564f3caaeb54a2df736f29
+    resource: repo://services/api-service/src/api/v1/retrieval.py
+generated: { by: "openwiki/0.5.0", at: "2026-09-08T12:30:29.951Z" }
 ---
 
 # API Service
@@ -46,8 +50,8 @@ Endpoints are grouped by functionality. Base routes include health checks and ve
 
 The core functionality is mounted under `/api/v1`.
 
-*   `POST /api/v1/retrieve`: Performs hybrid semantic search (dense + sparse) over the corpus.
-*   `POST /api/v1/chat`: Executes chat-based queries using the RAG model pipeline.
+*   `POST /api/v1/retrieve`: Performs hybrid retrieval by executing dense vector search and BM25 sparse vector search, combining results via Reciprocal Rank Fusion (RRF) on the Qdrant database.
+*   `POST /api/v1/chat`: Executes chat-based queries by coordinating retrieval, embedding, and LLM-based generation services.
 *   `POST /api/v1/embed`: Generates embedding vectors for text inputs using the configured model.
 
 ## Core Components
