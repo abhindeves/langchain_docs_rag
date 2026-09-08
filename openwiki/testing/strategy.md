@@ -5,7 +5,7 @@ description: Standardized testing patterns including FastAPI TestClient, mocking
 tags: [testing, quality-assurance, fastapi, mocking]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-ec3c0bb228befdde4c7c06f9
     resource: repo://services/api-service/tests/test_main.py

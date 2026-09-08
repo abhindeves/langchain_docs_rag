@@ -5,7 +5,7 @@ description: Overview of the event-driven serverless ingestion pipeline for docu
 tags: [architecture, ingestion, aws, serverless, rag]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md

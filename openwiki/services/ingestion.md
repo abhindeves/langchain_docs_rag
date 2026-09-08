@@ -5,7 +5,7 @@ description: Documentation for the event-driven serverless ingestion pipeline th
 tags: [ingestion, lambda, sqs, s3, bedrock, qdrant]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
   - id: openwiki-source-af70149a354536b126186304
     resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md
@@ -15,7 +15,7 @@ sources:
     resource: repo://services/indexer-service/src/indexer/manifest_crawler.py
   - id: openwiki-source-495f1336040c4ee315812c25
     resource: repo://services/indexer-service/src/indexer/storage.py
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-08T12:30:29.951Z" }
 ---
 
 # Ingestion Service

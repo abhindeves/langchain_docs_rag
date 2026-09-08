@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
+  "pageVersion": "sha256:ddf6114983edf0915870eeb618d09fa9b6cb635ca1a09504a771a43b0dd9a853",
   "claims": [
     {
       "id": "claim_b496b58cac02469ea7f949eb2800fce8",
@@ -31,10 +31,44 @@
           "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
         }
       ]
+    },
+    {
+      "id": "claim_8375230ab256427e968a5b8dee3f86a9",
+      "statement": "The application relies on Docker Compose for service runtime, orchestration, and local networking via a bridge-mode network.",
+      "evidence": [
+        {
+          "resource": "repo://docker-compose.yml",
+          "version": "repo-file-v1:sha256:68d4a999f143432a2ad75db967e8d08e6ae07799ece933debaa94c1d7d461894"
+        }
+      ]
+    },
+    {
+      "id": "claim_7582c7ace63a4b9ebeeaa43cbbe14a96",
+      "statement": "Infrastructure is managed as code using Pulumi with Python, defining S3 buckets for storage, DynamoDB tables for state, and SQS queues for task processing with associated DLQs.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_68b3959cea2c4f8e85f261162e46d19b",
+      "statement": "Consistent resource tagging (e.g., Environment, Project) is an operational invariant enforced for all managed cloud resources.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py#L31-L34",
+          "version": "repo-lines-v1:sha256:562d95fd8690580dd78dff3bb2dd6456d93a377f7294dd061093a664e8e5af7e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA1NmU3N2EyZDlkMjdmZWM0YWU2NGI2NDgyYjhhNjBiOThjOGY0OGYzZmNkMjEyOTEyY2U4NGQ3OWQxYTViYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWYwY2RiOTcyYTdiZmI3ZWQyNDZmOWZmNjcyMzg1ZTU1ZjQ5NjhmYzExMDQzZGM1YjY4NGQ1MWRmYTMxZGJjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTRiYjk3ZGZmZmNmNmY0OWIzNzc5ZjJjMzc5OTcxYjdhODFkMDk3ODUxYzJiMDVlN2E1MmU4OTE0MTc0NTkzOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODVjZjIxZTEyYjA0NmJhYzAzZGVlYzk1YjQ2NDA5ZGRhMDYxMGZkZmQ0Mjk0YWIwOTQwN2RkN2Y5NmI2NWRiNCJ9"
+        },
+        {
+          "resource": "repo://infra/__main__.py#L40-L43",
+          "version": "repo-lines-v1:sha256:562d95fd8690580dd78dff3bb2dd6456d93a377f7294dd061093a664e8e5af7e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA1NmU3N2EyZDlkMjdmZWM0YWU2NGI2NDgyYjhhNjBiOThjOGY0OGYzZmNkMjEyOTEyY2U4NGQ3OWQxYTViYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWYwY2RiOTcyYTdiZmI3ZWQyNDZmOWZmNjcyMzg1ZTU1ZjQ5NjhmYzExMDQzZGM1YjY4NGQ1MWRmYTMxZGJjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVmYmViNDk5MmQ3MWZlZTM2YTI1OGViNWIzZDYzMjA2ZTEzNWI1YmI5OTI3NWZjOTUxMTRhMzM0ZTQ5NjI0NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTk4YjA2M2Q5YjQ3ZTY1Mzc5NjI1NTcyY2NlMTk3NjY5ZDU3NjdlMTJjMThiZTA3NTY1MmI4Y2Q5ODFjZThkNSJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "at": "2026-09-08T12:30:29.951Z"
   }
 }

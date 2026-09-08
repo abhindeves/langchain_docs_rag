@@ -1,66 +1,76 @@
 ---
 type: concept
-title: Infrastructure Architecture
-description: Overview of the AWS infrastructure managed by Pulumi for the RAG ingestion system.
-tags: [infrastructure, pulumi, aws]
+title: Infrastructure
+description: Overview of the infrastructure, covering containerized local development and AWS cloud resources managed by Pulumi.
+tags: [infrastructure, pulumi, aws, docker]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
+  - id: openwiki-source-b79fbbd921df689b4bbdc82f
+    resource: repo://docker-compose.yml
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
   - id: openwiki-source-862443b88cee5adeb9e4ba55
     resource: repo://infra/README.md
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+generated: { by: "openwiki/0.5.0", at: "2026-09-08T12:30:29.951Z" }
 ---
 
-# Infrastructure Architecture
+# Infrastructure
 
-The system uses [Pulumi](https://www.pulumi.com/) to manage AWS infrastructure as code using Python. This ensures that infrastructure state is version-controlled, reproducible, and tightly coupled with the application's lifecycle.
+The system employs a dual-layered infrastructure approach: containerized services for local development and execution, and cloud-native AWS resources for production ingestion, managed via Infrastructure as Code (IaC).
 
-## Overview
+## Infrastructure Overview
 
-The infrastructure codebase is located in the `/infra/` directory. The primary entry point for the Pulumi program is `__main__.py`, which declares essential AWS resources including storage, messaging, and database components.
+```mermaid
+graph TD
+    subgraph "Local/Runtime Environment"
+        A[Docker Compose]
+        A --> B[API Service]
+    end
 
-## Environment Management
-
-Environments are managed using Pulumi stacks, which correspond to configuration files (e.g., `Pulumi.dev.yaml`). Each stack maintains its own infrastructure state, allowing for isolated deployments across development, staging, or production environments. 
-
-To manage infrastructure, navigate to the `/infra/` directory:
-
-```bash
-cd /infra/
+    subgraph "Cloud Infrastructure (AWS)"
+        C[S3: rag-document-store]
+        D[DynamoDB: DocumentSyncStatus]
+        E[SQS: Ingestion Queue]
+        F[SQS: Crawler Queue]
+    end
+    
+    B -.-> C
+    B -.-> D
+    B -.-> E
+    B -.-> F
 ```
 
-### Pulumi Commands
+## Containerized Environment
 
-- **Preview changes:** Review proposed changes against the current state.
-  ```bash
-  pulumi preview
-  ```
-- **Deploy infrastructure:** Apply the current `__main__.py` definitions to the configured AWS environment.
-  ```bash
-  pulumi up
-  ```
-- **Destroy infrastructure:** Remove all resources managed by the current stack.
-  ```bash
-  pulumi destroy
-  ```
+The application runtime is managed via `docker-compose.yml`. It defines the core API services and networking, ensuring consistent behavior across local and staging environments. The `rag_network` (bridge driver) facilitates communication between services.
 
-## Infrastructure Components
+- **Entrypoint:** `docker-compose.yml`
+- **Networking:** Dedicated `rag_network` bridge.
+- **Persistence:** Local development relies on volume mounting for AWS configuration (`~/.aws:/root/.aws:ro`) to facilitate SDK interactions with cloud resources.
 
-The infrastructure includes several core AWS services:
+## AWS Infrastructure (IaC)
 
-*   **DynamoDB Table (`DocumentSyncStatus`):** Tracks the status of ingestion tasks using `doc_id` as the hash key.
-*   **S3 Bucket (`rag-document-store`):** Serves as the central store for ingested documents.
-*   **SQS Queues:** 
-    *   **Ingestion Queue:** Processes ingestion tasks, configured with a 900s visibility timeout and a Dead-Letter Queue (DLQ).
-    *   **Crawler Queue:** Processes crawler tasks, configured with a 300s visibility timeout and a DLQ.
+Cloud resources are managed using [Pulumi](https://www.pulumi.com/) with Python. This approach ensures reproducible, version-controlled state and tight coupling between application logic and infrastructure. The codebase is maintained in the `/infra/` directory.
 
-## Extending Infrastructure
+### Key Components
 
-To add or modify resources, update `/infra/__main__.py`:
+*   **DynamoDB Table (`DocumentSyncStatus`):** Tracks ingestion status using `doc_id` as the hash key.
+*   **S3 Bucket (`rag-document-store`):** Stores ingested raw documents.
+*   **SQS Queues:**
+    *   **Ingestion Queue:** Handles primary ingestion tasks (900s visibility timeout).
+    *   **Crawler Queue:** Manages crawl operations (300s visibility timeout).
+    *   Both queues include integrated **Dead-Letter Queues (DLQs)** with a `maxReceiveCount` of 3 to handle failed processing attempts.
 
-1.  **Define:** Use the Pulumi AWS Python SDK.
-2.  **Tagging:** Always apply consistent tags (e.g., `{"Environment": "dev", "Project": "rag-ingestion"}`) to ensure cost tracking and resource management.
-3.  **Validate:** Run `pulumi preview` to verify that the changes meet the desired state before applying.
+### Operations
+
+Infrastructure is managed through Pulumi stacks corresponding to environment-specific configurations (e.g., `Pulumi.dev.yaml`).
+
+| Action | Command | Description |
+| :--- | :--- | :--- |
+| **Preview** | `pulumi preview` | Review pending changes. |
+| **Deploy** | `pulumi up` | Apply infrastructure updates. |
+| **Destroy** | `pulumi destroy` | Clean up stack resources. |
+
+All infrastructure code must include standardized resource tags (`Environment`, `Project`) for cost and lifecycle management. See `/infra/__main__.py` for the definitive resource definitions.

@@ -5,18 +5,22 @@ description: High-level architectural model of the RAG platform, focusing on the
 tags: [architecture, aws, serverless, rag]
 verified:
   - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+    at: 2026-09-08T12:30:29.951Z
 sources:
+  - id: openwiki-source-b79fbbd921df689b4bbdc82f
+    resource: repo://docker-compose.yml
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
   - id: openwiki-source-af70149a354536b126186304
     resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+  - id: openwiki-source-23775c3de52f3ab95a13cb8b
+    resource: repo://README.md
+generated: { by: "openwiki/0.5.0", at: "2026-09-08T12:30:29.951Z" }
 ---
 
 # System Architecture Overview
 
-This document provides a high-level model of the Serverless RAG Platform's architecture. The system comprises three primary subsystems: the API Service, the Ingestion Pipeline, and the Evaluation Service.
+This document provides a high-level model of the Serverless RAG Platform's architecture. The platform is designed as a production-grade, event-driven system leveraging AWS serverless services to manage data ingestion, semantic search, and quality evaluation.
 
 ## High-Level Communication Flow
 
@@ -24,23 +28,20 @@ The following diagram illustrates the interaction between the system's core comp
 
 ```mermaid
 flowchart TB
-    API[API Service]
-    Ingestion[Ingestion Pipeline]
-    Eval[Evaluation Service]
-    
-    User((User)) --> API
-    API --> Ingestion
-    API --> Eval
-    Ingestion --> Qdrant[(Vector DB)]
+    User((User)) --> API[API Service]
+    API --> Ingestion[Ingestion Pipeline]
+    API --> Eval[Evaluation Service]
+    Ingestion --> Qdrant[(Qdrant Vector DB)]
     Eval --> Qdrant
+    Eval --> Bedrock[Amazon Bedrock]
 ```
 *System component interaction diagram.*
 
 ## Component Responsibilities
 
-*   **API Service:** Acts as the primary entrypoint for users, handling requests and coordinating tasks across the pipeline and evaluation services.
-*   **Ingestion Pipeline:** Automates the transformation of external content into searchable vector embeddings.
-*   **Evaluation Service:** Assesses the quality and relevance of retrieved content and generated responses against defined benchmarks.
+*   **API Service:** Acts as the primary interface for users, providing RESTful endpoints for hybrid semantic search.
+*   **Ingestion Pipeline:** Automates the end-to-end transformation of raw data into searchable vector embeddings using Amazon SQS for asynchronous, scalable processing.
+*   **Evaluation Service:** Assesses retrieval and generation quality against benchmarks to ensure consistent RAG performance.
 
 ## Data Lifecycle and Control Flow
 

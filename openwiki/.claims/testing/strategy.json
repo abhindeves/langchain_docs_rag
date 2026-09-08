@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:6a65227dd52905dec2b7422d989c68a68c32f40a1ade80ab0e98227bbc2a0729",
+  "pageVersion": "sha256:ca5d1e2481bac4ccbbabc34c69db98f94fabdc83955b67388888d813aa8aefe1",
   "claims": [
     {
       "id": "claim_e51a5c4ee06e4e1b995dc3b94e36be23",
       "statement": "The system uses fastapi.testclient.TestClient for functional testing of API endpoints, which facilitates testing the full request/response cycle and managing application lifespan events.",
       "evidence": [
         {
-          "resource": "repo://services/api-service/tests/test_main.py",
-          "version": "repo-file-v1:sha256:0aa6dcc2cb6bb7dfcee982c50632f8f99e47a4a0b6ab237d2254253be43d28fc"
+          "resource": "repo://services/api-service/tests/test_main.py#L9-L12",
+          "version": "repo-lines-v1:sha256:8e9c9eef4ff999c7eb41ba2ab1a96ac14ec70652195b0bb826e747e33b5ef999:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzgwZjRhYmQyM2QyNzgwNjcyMzAyYzBjOGVmYmM1OTcwNmY3OTUzNDk0NmU3NWNhMGJiMGE0MDUzNTg2M2YxOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2YwNDQyOGI5YTcyNmEzYjI5NGZiYTM4MTkzMzNhZWM2OTQyNjU2OTFhOTE5YWE2ZmYyYzRiMmQ2N2JkNDc0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODk3NWViNmU0NTUzMWRiZjhiY2NlNzk5MWI4OThjNDFkMjg2YWE1ZTAxNjZiODUxNzlmMDcxNTFiMjI1ZGFlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTliMWQ1YzU4ZmNiNWE5YmI5MmMwODg1OTZjZmM2ZWUwN2FhYTI4OGFmMmE0MWIyMGE0MmJmNDczMDQ3ZWZkMiJ9"
         }
       ]
     },
@@ -35,6 +35,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "at": "2026-09-08T12:30:29.951Z"
   }
 }

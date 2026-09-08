@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f42da5fed007472dbc4854e1b1ea637acbc3caaf2f169e8f15c60fde18942799",
+  "pageVersion": "sha256:29374bf4faea6b10308c82f367237c588ec10073c65d1f6c014f5664257570b9",
   "claims": [
     {
       "id": "claim_e189f6bdc4ae4ee0b77a02f0259b72ed",
@@ -31,10 +31,44 @@
           "version": "repo-file-v1:sha256:2ec4aab11853f3c86ea65c983cde44cddf2a079a14c98d7e69235939fdc91de1"
         }
       ]
+    },
+    {
+      "id": "claim_c2270ed6983244aea154b9ae00f0403a",
+      "statement": "Infrastructure resources for the Serverless RAG Platform are provisioned using Pulumi as declarative Python code in the `/infra` directory.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d0fcd74b8004372bc79eefd99928c97",
+      "statement": "The IaC lifecycle relies on `pulumi preview` for impact auditing and `pulumi up` for stateful deployment, with the Pulumi Service acting as the default backend for state and concurrency management.",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md",
+          "version": "repo-file-v1:sha256:2ec4aab11853f3c86ea65c983cde44cddf2a079a14c98d7e69235939fdc91de1"
+        },
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_590c8a30c2a1458792982175e42e78d0",
+      "statement": "Infrastructure is modularized into core AWS services including DynamoDB for persistence, S3 for storage, SQS for messaging with DLQs, and Lambda functions for compute.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "at": "2026-09-08T12:30:29.951Z"
   }
 }
