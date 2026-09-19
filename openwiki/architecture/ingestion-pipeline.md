@@ -3,9 +3,6 @@ type: Architecture
 title: Ingestion Pipeline
 description: Overview of the event-driven serverless ingestion pipeline for document processing and embedding.
 tags: [architecture, ingestion, aws, serverless, rag]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
