@@ -3,9 +3,6 @@ type: Service Documentation
 title: Ingestion Service
 description: Documentation for the event-driven serverless ingestion pipeline that crawls, processes, and embeds documents.
 tags: [ingestion, lambda, sqs, s3, bedrock, qdrant]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-af70149a354536b126186304
     resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md

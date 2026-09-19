@@ -3,9 +3,6 @@ type: Architecture Overview
 title: System Architecture Overview
 description: High-level architectural model of the RAG platform, focusing on the event-driven ingestion pipeline and data lifecycle from raw source to vector store.
 tags: [architecture, aws, serverless, rag]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
