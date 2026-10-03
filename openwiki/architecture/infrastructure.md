@@ -1,66 +1,59 @@
 ---
 type: concept
 title: Infrastructure Architecture
-description: Overview of the AWS infrastructure managed by Pulumi for the RAG ingestion system.
-tags: [infrastructure, pulumi, aws]
+description: Overview of the AWS infrastructure managed by Pulumi and the containerized deployment environment.
+tags: [infrastructure, pulumi, aws, docker]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+  - by: openwiki/0.7.0
+    at: 2026-10-03T12:56:25.882Z
 sources:
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
   - id: openwiki-source-862443b88cee5adeb9e4ba55
     resource: repo://infra/README.md
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+generated: { by: "openwiki/0.7.0", at: "2026-10-03T12:56:25.882Z" }
 ---
 
 # Infrastructure Architecture
 
-The system uses [Pulumi](https://www.pulumi.com/) to manage AWS infrastructure as code using Python. This ensures that infrastructure state is version-controlled, reproducible, and tightly coupled with the application's lifecycle.
+The system utilizes a dual-layer infrastructure approach: managed AWS resources for data storage and orchestration, and containerized services for application logic.
 
-## Overview
+## Cloud Infrastructure (AWS)
 
-The infrastructure codebase is located in the `/infra/` directory. The primary entry point for the Pulumi program is `__main__.py`, which declares essential AWS resources including storage, messaging, and database components.
+The system uses [Pulumi](https://www.pulumi.com/) to manage AWS infrastructure as code using Python. The infrastructure codebase is located in the `/infra/` directory.
 
-## Environment Management
-
-Environments are managed using Pulumi stacks, which correspond to configuration files (e.g., `Pulumi.dev.yaml`). Each stack maintains its own infrastructure state, allowing for isolated deployments across development, staging, or production environments. 
-
-To manage infrastructure, navigate to the `/infra/` directory:
-
-```bash
-cd /infra/
-```
-
-### Pulumi Commands
-
-- **Preview changes:** Review proposed changes against the current state.
-  ```bash
-  pulumi preview
-  ```
-- **Deploy infrastructure:** Apply the current `__main__.py` definitions to the configured AWS environment.
-  ```bash
-  pulumi up
-  ```
-- **Destroy infrastructure:** Remove all resources managed by the current stack.
-  ```bash
-  pulumi destroy
-  ```
-
-## Infrastructure Components
-
-The infrastructure includes several core AWS services:
+### Core AWS Components
 
 *   **DynamoDB Table (`DocumentSyncStatus`):** Tracks the status of ingestion tasks using `doc_id` as the hash key.
-*   **S3 Bucket (`rag-document-store`):** Serves as the central store for ingested documents.
+*   **S3 Bucket (`rag-document-store`):** Central store for ingested documents.
 *   **SQS Queues:** 
     *   **Ingestion Queue:** Processes ingestion tasks, configured with a 900s visibility timeout and a Dead-Letter Queue (DLQ).
     *   **Crawler Queue:** Processes crawler tasks, configured with a 300s visibility timeout and a DLQ.
 
-## Extending Infrastructure
+## Deployment Environment (Docker)
 
-To add or modify resources, update `/infra/__main__.py`:
+Application services are containerized to ensure environment consistency. The `api-service` is defined in `/docker-compose.yml` and orchestrated via Docker.
 
-1.  **Define:** Use the Pulumi AWS Python SDK.
-2.  **Tagging:** Always apply consistent tags (e.g., `{"Environment": "dev", "Project": "rag-ingestion"}`) to ensure cost tracking and resource management.
-3.  **Validate:** Run `pulumi preview` to verify that the changes meet the desired state before applying.
+### Service Interactions
+
+```mermaid
+graph TD
+    User((User/Client)) --> API[API Service]
+    API --> S3[(AWS S3: Documents)]
+    API --> DDB[(AWS DynamoDB: Status)]
+    API --> SQS[AWS SQS: Queues]
+```
+
+## Operations
+
+### Infrastructure (Pulumi)
+
+Environments are managed using Pulumi stacks (e.g., `Pulumi.dev.yaml`). To manage infrastructure, navigate to `/infra/`:
+
+*   **Preview:** `pulumi preview`
+*   **Deploy:** `pulumi up`
+*   **Destroy:** `pulumi destroy`
+
+### Services (Docker)
+
+The `api-service` runs within a dedicated Docker network `rag_network`. Configuration is injected via environment variables (e.g., `qdrant_cluster_endpoint`, `AWS_REGION`).
