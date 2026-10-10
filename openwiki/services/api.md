@@ -3,9 +3,6 @@ type: Service
 title: API Service
 description: Documentation for the FastAPI-based API Service providing query, retrieval, and chat endpoints.
 tags: [api, fastapi, service, retrieval, chat]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-c8424396153b7ec9abf7e07d
     resource: repo://services/api-service/src/api/main.py
