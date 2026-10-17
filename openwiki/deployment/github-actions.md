@@ -3,9 +3,6 @@ type: documentation
 title: CI/CD Workflows
 description: Overview of the GitHub Actions workflows used for continuous integration, deployment, and documentation synchronization.
 tags: [github-actions, ci-cd, automation, deployment]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml
@@ -14,6 +11,9 @@ sources:
   - id: openwiki-source-6d4b4e707b8d60b6ccfa3425
     resource: repo://.github/workflows/openwiki-update.yml
 generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+verified:
+  - by: openwiki/0.7.2
+    at: 2026-10-17T11:55:30.258Z
 ---
 
 # CI/CD Workflows

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
+  "pageVersion": "sha256:b488e0f2b94f1418fb9ddba399f3e543be56fe2632e56fb1b9a4795a1328ed78",
   "claims": [
     {
       "id": "claim_b496b58cac02469ea7f949eb2800fce8",
@@ -31,10 +31,34 @@
           "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
         }
       ]
+    },
+    {
+      "id": "claim_88680b7794e64d0b89348b1b26c9e55e",
+      "statement": "The system utilizes Pulumi for Infrastructure as Code, using Python to define and manage AWS resources in an isolated, version-controlled manner via stack configurations.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py",
+          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+        }
+      ]
+    },
+    {
+      "id": "claim_7fa14ca15e6e47feab581d1a248a513e",
+      "statement": "Resource dependency management in Pulumi is handled implicitly through resource object references and output applications (e.g., using `.apply()`), ensuring necessary resources like Dead-Letter Queues are created prior to dependent configurations like SQS redrive policies.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py#L59-L66",
+          "version": "repo-lines-v1:sha256:0c5e9ac98d7b8d9de1dbcf5ce68d0ea5edb3fe56cbcf64863a8c8fa5342d021b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJmYjMxY2RmMzY0MjA3ZDhlMzdlY2QxN2RlODQxNTg3MWUzYmI5ZmRiMDE2YTA3ZDI5YTYzZmJlMjgwMGRjMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzAyYzQxNGI1NGNmODZkZmI0ZjkwZGZlN2Q3YmRiZmE2NjZiN2RkZGQzMmYxMjg2ZjIzMGE1YjUzMjQxODE4YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODM2YzRlMDU3NjZjNDU1NDQ4NTk5N2ZmMWE5NDgxOTUzZjExYmI5MTQ0NmIzZThmMjRhMjFmN2E2ZDE5MmJkNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGI4MzM2ZGUwMGE4OTdhNmEzNzI5N2I1N2ZhNGY0YzhhMDAzMmExZjI5NzUxOWQzMzNkMmU3YjU0MjAwOTA2NyJ9"
+        },
+        {
+          "resource": "repo://infra/__main__.py#L85-L92",
+          "version": "repo-lines-v1:sha256:8ddeb3c6c10750cbae8371ee305704ce3b0a96070376ba6389b19ab7bee25660:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmI2ZWE4YjljODQxYjVjNzA1NTVhNDk0Y2YxMjcxMjczNWJiMTE2ZWQ3NWZjZjI5MDMyMjc1Zjk3OTI3OWM5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzAyYzQxNGI1NGNmODZkZmI0ZjkwZGZlN2Q3YmRiZmE2NjZiN2RkZGQzMmYxMjg2ZjIzMGE1YjUzMjQxODE4YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTEyYmQ5ZjI1MTdiMTUwY2E2MWM0MDU3Mzc0ZWZkZDZlMzI2NTJkZjhlYzYzMzBhMzcwMDA4MjAxMWU5ODJhZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGI4MzM2ZGUwMGE4OTdhNmEzNzI5N2I1N2ZhNGY0YzhhMDAzMmExZjI5NzUxOWQzMzNkMmU3YjU0MjAwOTA2NyJ9"
+        }
+      ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-17T11:55:30.258Z"
   }
 }
