@@ -3,9 +3,6 @@ type: Concept
 title: Quickstart
 description: Central entry point for developers, outlining the RAG platform architecture, repository structure, and local development workflows.
 tags: [quickstart, onboarding, architecture]
-verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
 sources:
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
