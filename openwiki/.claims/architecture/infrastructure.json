@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
+  "pageVersion": "sha256:bb7d046972770f26b5bfed039a16562b3c59cbba999dcce696f44118e02e2969",
   "claims": [
     {
       "id": "claim_b496b58cac02469ea7f949eb2800fce8",
-      "statement": "The system uses Pulumi with Python to manage AWS infrastructure, with definitions located in /infra/__main__.py.",
+      "statement": "The system uses Pulumi with Python to manage an event-driven serverless AWS infrastructure, defining resources in /infra/__main__.py for S3 storage, SQS queues, and DynamoDB-based state management.",
       "evidence": [
         {
-          "resource": "repo://infra/__main__.py",
-          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+          "resource": "repo://infra/__main__.py#L1-L125",
+          "version": "repo-lines-v1:sha256:c6976b8f6f5d1d283f9126b4ac5ba775d99317c7e40f9dff253dcd240e533b2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNjFhOTExMmEyOTE4ZTJhYmEwM2UxOWEyZjIyMWEwMjdhYjRiNmY5ZTk0NmE2YzM5ODE0ZjU0ZTE4ZTA3ZGZjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyYWQzNDdjNDk0YmZmZjZlNzQzZDUzNzY4NTc3OTFlZjhlMjYyMTUwNjkzM2Y3NzQ0N2EzNzc1N2UyMTdiZGVjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4Yzg0NTg3Y2IwNWEyMmYzYTc2ZGFmZmE4YWZjZjhmMDNjMDE1MTZjMWNhZDRiNWQwNWJmZWY3ZDQ1N2Y2YWYzIn0"
         }
       ]
     },
@@ -24,17 +24,17 @@
     },
     {
       "id": "claim_8f5fa77be1c942d5a38a1b608ff7bd71",
-      "statement": "The infrastructure currently includes a DynamoDB table for synchronization status, an S3 bucket for document storage, and SQS queues for ingestion and crawling tasks with integrated DLQs.",
+      "statement": "The ingestion pipeline employs a master-worker pattern: URL targets are dispatched to a Crawler SQS queue, triggering a manifest crawler that saves raw content to S3; S3 upload events then trigger an Ingestion SQS queue, which invokes the indexer to process chunks into a vector database.",
       "evidence": [
         {
-          "resource": "repo://infra/__main__.py",
-          "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
+          "resource": "repo://services/indexer-service/src/indexer/lambda_handler.py#L22-L100",
+          "version": "repo-lines-v1:sha256:d5353bab33fe6f3d7f9578ee512eb23707a56b57b8a9dd9327876aeca6b33075:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNjEwYWY1OGYyZDQ3Yjc2NWMwN2E4OTEwZGJkMDhmMGEwZjE0NTc1OGU5YWRlMjljNjYxNGNiYmNlNjFmNjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliNGE1OWY3MGE3YTgzZjNjZDVjZDdiYTZkNjM2MTRiZjNkNDk0Zjk3NDY5NWI4MTA1ZDdjNmM4ZGYxNTE4ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjNzM0OGRhM2VjOGE2ZjVlYTYxMTUwMDcxYmM5YzBhYmExNmVmZjk2MGI0NGZjMzhkYTNjNmNjOWZkYjg0MTcifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-07T14:35:42.115Z"
   }
 }

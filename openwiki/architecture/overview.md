@@ -1,50 +1,43 @@
 ---
-type: Architecture Overview
-title: System Architecture Overview
-description: High-level architectural model of the RAG platform, focusing on the event-driven ingestion pipeline and data lifecycle from raw source to vector store.
-tags: [architecture, aws, serverless, rag]
+type: concept
+title: System Overview
+description: High-level architectural model of the RAG platform, covering the API entrypoints, event-driven ingestion pipeline, and evaluation services.
+tags: [architecture, rag, aws, serverless]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+  - by: openwiki/0.9.0
+    at: 2026-11-07T14:35:42.115Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
   - id: openwiki-source-af70149a354536b126186304
     resource: repo://docs/adr/0002-decouple-ingestion-dependencies.md
-generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
+generated: { by: "openwiki/0.9.0", at: "2026-11-07T14:35:42.115Z" }
 ---
 
-# System Architecture Overview
+# System Overview
 
-This document provides a high-level model of the Serverless RAG Platform's architecture. The system comprises three primary subsystems: the API Service, the Ingestion Pipeline, and the Evaluation Service.
+This document provides a high-level architectural overview of the serverless RAG (Retrieval-Augmented Generation) platform. The system is designed to ingest, process, and evaluate external knowledge, providing a scalable and cost-effective interface for RAG applications.
 
-## High-Level Communication Flow
+## Core Architecture
 
-The following diagram illustrates the interaction between the system's core components.
+The system is composed of three primary subsystems:
+
+1.  **[API Service](api-service.md):** Acts as the unified entrypoint for client requests. It coordinates RAG queries, triggers manual ingestion, and exposes the evaluation service functionality.
+2.  **[Ingestion Pipeline](ingestion-pipeline.md):** A robust, event-driven pipeline responsible for crawling, chunking, embedding, and storing source content into a vector database.
+3.  **Evaluation Service:** Assesses retrieval performance and generation quality using configured benchmarks.
 
 ```mermaid
 flowchart TB
-    API[API Service]
-    Ingestion[Ingestion Pipeline]
-    Eval[Evaluation Service]
-    
-    User((User)) --> API
-    API --> Ingestion
-    API --> Eval
-    Ingestion --> Qdrant[(Vector DB)]
+    User((User)) --> API[API Service]
+    API --> Ingestion[Ingestion Pipeline]
+    API --> Eval[Evaluation Service]
+    Ingestion --> Qdrant[(Qdrant Vector DB)]
     Eval --> Qdrant
 ```
-*System component interaction diagram.*
 
-## Component Responsibilities
+## Ingestion Architecture
 
-*   **API Service:** Acts as the primary entrypoint for users, handling requests and coordinating tasks across the pipeline and evaluation services.
-*   **Ingestion Pipeline:** Automates the transformation of external content into searchable vector embeddings.
-*   **Evaluation Service:** Assesses the quality and relevance of retrieved content and generated responses against defined benchmarks.
-
-## Data Lifecycle and Control Flow
-
-The ingestion pipeline automates the transformation of external content into searchable vector embeddings.
+The ingestion pipeline is engineered for efficiency and scale, utilizing an event-driven flow to maintain a current and searchable knowledge base.
 
 ```mermaid
 flowchart LR
@@ -58,25 +51,18 @@ flowchart LR
     Worker --> Qdrant[(Qdrant Vector DB)]
     Worker --> DDB[(DynamoDB Status)]
 ```
-*Ingestion pipeline flow diagram.*
 
-### Ingestion Pipeline Details
+### Key Mechanisms
 
-*   **Dispatch (EventBridge & Master Crawler):** An EventBridge Scheduler initiates a scheduled crawl. The Master Crawler Lambda identifies source URLs and dispatches them to an SQS queue.
-*   **Crawling & Deduplication (SQS & Manifest Crawler):** The Manifest Crawler consumes queue messages. It performs lightweight deduplication against state manifests stored in S3, avoiding expensive database lookups. New or updated content is saved to raw storage (S3).
-*   **Processing (Worker Lambda):** An S3 event trigger initiates processing. The Worker Lambda chunks the raw content, generates embeddings using Amazon Bedrock, and persists these to the Qdrant vector database.
-*   **Tracking (DynamoDB):** Monitors the synchronization state of ingestion jobs.
+*   **Crawling & Fan-out:** The system uses EventBridge to schedule crawls. The **Master Crawler** dispatches URLs to an SQS queue, allowing for parallel, distributed crawling via the **Manifest Crawler**.
+*   **Cost-Optimized Deduplication:** Instead of costly database lookups, the pipeline performs lightweight deduplication against state manifests stored in S3.
+*   **Decoupled Processing:** The pipeline minimizes Lambda cold-starts and memory usage by avoiding bulky dependencies. It employs custom lightweight text splitters and performs direct REST integrations.
+*   **Vector Search Offloading:** To maintain speed, the system offloads intensive vector operations and sparse vector generation directly to the Qdrant server, keeping the worker logic lean.
 
-## Architectural Design Principles
+## Operational Design Principles
 
-The platform's design is driven by the following core priorities:
+*   **Fault Tolerance:** SQS provides reliable buffering between crawling and processing stages, while Dead-Letter Queues (DLQ) capture failed jobs for inspection.
+*   **Serverless Efficiency:** Resources are strictly demand-driven, aligning costs with ingestion volume and request patterns.
+*   **Extensibility:** Component boundaries are defined to allow for independent scaling and replacement of specific services, such as swapping embedding models or vector databases.
 
-*   **Decoupled Dependencies:** To minimize Lambda cold-starts and footprint, the pipeline avoids heavy dependencies (e.g., LangChain, FastEmbed). It uses lightweight custom splitters and direct REST integrations.
-*   **Cost-Optimized Deduplication:** Utilizing S3-based manifests significantly reduces the cost of DynamoDB read operations during high-volume ingestion.
-*   **Fault Tolerance:** SQS serves as a buffer between crawling and processing, with Dead-Letter Queues (DLQ) isolating failed tasks.
-
-## Key Decisions
-
-This architecture is governed by specific decisions:
-*   **SQS Fan-Out:** Enables parallel crawling and improved throughput.
-*   **Server-Side Inference:** Offloads intensive vector operations (e.g., BM25) to the Qdrant service.
+See [Infrastructure](infrastructure.md) for details on the underlying deployment and cloud resource management.
