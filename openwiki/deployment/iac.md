@@ -4,13 +4,13 @@ title: Infrastructure as Code Operations
 description: Operational overview of managing AWS infrastructure using Pulumi for the Serverless RAG Platform.
 tags: [deployment, pulumi, iac, aws, operations]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+  - by: openwiki/0.9.0
+    at: 2026-11-20T16:35:37.158Z
 sources:
+  - id: openwiki-source-6766b7a0c14857435d2077c9
+    resource: repo://.github/workflows/deploy.yml
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
-  - id: openwiki-source-862443b88cee5adeb9e4ba55
-    resource: repo://infra/README.md
 generated: { by: "openwiki/0.5.0", at: "2026-09-04T12:25:44.572Z" }
 ---
 

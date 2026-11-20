@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
+  "pageVersion": "sha256:17f9c4f2b39814f98d44ee684d63a5d8c69a8111e7f46053d45a910be588dde0",
   "claims": [
     {
       "id": "claim_b496b58cac02469ea7f949eb2800fce8",
@@ -31,10 +31,20 @@
           "version": "repo-file-v1:sha256:baa44dcba214196513e8e83b8534ee1ad72c2cc439707dd6a455f45dd298e153"
         }
       ]
+    },
+    {
+      "id": "claim_aa14ce24a6044f18a134a9d6020ec628",
+      "statement": "The infrastructure defines several AWS Lambda functions for ingestion, crawling, and scheduling, alongside associated EventSourceMappings and permissions.",
+      "evidence": [
+        {
+          "resource": "repo://infra/__main__.py#L171-L368",
+          "version": "repo-lines-v1:sha256:74b6b9e4d278c19cd01f018acb27c4139ad59307b51f3de9430221f6f71ab396:eyJzZWxlY3RlZExpbmVDb3VudCI6MTk4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkMWE3ZjQ0NWYxMDRhYzU3YTJjNmVmNzczZmQ4N2Y1OTVmMDEwYmRjMTgxZjkxMjU1MzYwZjgyM2IwMDE3YzNjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlNzFmMzc3MjUxMjk3NjFmNmIwM2M0NWE1MGNjOWYwNzk2MWUzNWYyNGIyMmY3NDJkNWY2MWMyYjQyYmEyMzVlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NTUzZjQ5MmJhYzg2MTI3MDhjNGE2MzhhNWQwMjJiZTA0NWY0NTYxZmNjYTdmNWU4YTFjYTA5ZGQyYTBhMzUwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMzdlZDUyNGMzMTMwODg4NWUxMzgyNTJiOTNmNWU1ZTU1OWU1NDhlOTA4M2Q3ZDFjMGJkOTI5ODU3ZjI3YjUyIn0"
+        }
+      ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-04T12:25:44.572Z"
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-20T16:35:37.158Z"
   }
 }

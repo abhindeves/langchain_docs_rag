@@ -1,11 +1,11 @@
 ---
 type: Architecture
 title: Ingestion Pipeline
-description: Overview of the event-driven serverless ingestion pipeline for document processing and embedding.
+description: Overview of the event-driven serverless ingestion pipeline for document processing, embedding, and vector database indexing.
 tags: [architecture, ingestion, aws, serverless, rag]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+  - by: openwiki/0.9.0
+    at: 2026-11-20T16:35:37.158Z
 sources:
   - id: openwiki-source-38f037d212ee358478211ba3
     resource: repo://docs/adr/0001-manifest-crawler-sqs-fanout.md
@@ -15,7 +15,7 @@ sources:
     resource: repo://services/indexer-service/src/indexer/lambda_handler.py
   - id: openwiki-source-53309d3d93deed43bfcac7af
     resource: repo://services/indexer-service/src/indexer/manifest_crawler.py
-generated: {by: "openwiki/0.4.0", at: "2026-08-26T08:35:55.733Z"}
+generated: { by: "openwiki/0.9.0", at: "2026-11-20T16:35:37.158Z" }
 ---
 
 # Ingestion Pipeline
@@ -27,16 +27,23 @@ The Ingestion Pipeline is a scalable, event-driven serverless system designed to
 The pipeline automates the lifecycle of document ingestion, from URL discovery to vector database insertion. It is designed to minimize database load through manifest-based deduplication and ensure high performance by decoupling heavy dependencies.
 
 ```mermaid
-flowchart LR
-    EB[EventBridge] --> MC[Master Crawler Lambda]
-    MC --> Q[SQS Queue]
-    Q --> ManC[Manifest Crawler Lambda]
-    ManC --> S3Raw[(S3 Raw Storage)]
-    S3Raw --> S3Trigger[S3 Event Trigger]
-    S3Trigger --> Chunk[Worker Lambda]
-    Chunk --> Bedrock[Amazon Bedrock]
-    Chunk --> Qdrant[(Qdrant Vector DB)]
-    Chunk --> DDB[(DynamoDB Status)]
+sequenceDiagram
+    participant EB as EventBridge
+    participant MC as Master Crawler
+    participant Q as SQS Queue
+    participant ManC as Manifest Crawler
+    participant S3 as S3 Raw Storage
+    participant Worker as Worker Lambda
+    participant Bedrock as Amazon Bedrock
+    participant Qdrant as Qdrant
+
+    EB->>MC: Trigger Crawl
+    MC->>Q: Dispatch Task (URL)
+    Q->>ManC: Process URL
+    ManC->>S3: Write Raw Content (if new/updated)
+    S3->>Worker: Event Notification
+    Worker->>Bedrock: Generate Embeddings
+    Worker->>Qdrant: Upsert Vectors
 ```
 
 ## Core Workflow
@@ -47,7 +54,7 @@ The process begins with an **EventBridge Scheduler** trigger. The `master_crawl_
 ### 2. Crawl and Deduplicate
 The `manifest_crawl_handler` consumes messages from the SQS queue.
 *   **Deduplication:** To avoid expensive DynamoDB lookups, the system uses an S3-based manifest. This tracks content hashes efficiently, ensuring only new or updated documents trigger downstream processing.
-*   **Storage:** Raw content is saved to an S3 bucket, which subsequently triggers the processing stage.
+*   **Storage:** Raw content is saved to an S3 bucket, which subsequently triggers the processing stage via S3 Event Notifications.
 
 ### 3. Chunking and Embedding
 An S3 event notification triggers a worker Lambda (`s3_event_handler`) when new files arrive.
@@ -56,7 +63,7 @@ An S3 event notification triggers a worker Lambda (`s3_event_handler`) when new 
 
 ## Key Architectural Principles
 
-*   **Decoupling Dependencies:** To optimize for speed and size, heavy libraries (such as LangChain and FastEmbed) are excluded. Lightweight alternatives and direct REST API calls are used instead.
+*   **Decoupling Dependencies:** To optimize for speed and size, heavy libraries are excluded. Lightweight alternatives and direct REST API calls to Bedrock and Qdrant are used instead to minimize Lambda cold start latency.
 *   **Cost Efficiency:** By utilizing S3 manifests for deduplication, the system significantly reduces DynamoDB read operations, which are a primary cost driver in high-volume ingestion.
 *   **Resilience:** The use of SQS with a Dead-Letter Queue (DLQ) ensures that failed ingestion tasks are isolated and do not block the pipeline.
 
