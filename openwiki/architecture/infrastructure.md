@@ -4,8 +4,8 @@ title: Infrastructure Architecture
 description: Overview of the AWS infrastructure managed by Pulumi for the RAG ingestion system.
 tags: [infrastructure, pulumi, aws]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-04T12:25:44.572Z
+  - by: openwiki/0.9.0
+    at: 2026-11-26T18:01:40.921Z
 sources:
   - id: openwiki-source-45429c71bab6f9779e370ede
     resource: repo://infra/__main__.py
