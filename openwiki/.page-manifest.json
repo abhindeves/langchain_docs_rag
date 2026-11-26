@@ -9,11 +9,11 @@
       "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb"
     },
     "/openwiki/architecture/infrastructure.md": {
-      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
-      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48",
-      "pageVersion": "sha256:4cbd5e56d663c8359c4830ef1a9c29c1c5b033509c74385880086e29de559603",
-      "completedBy": "openwiki/0.5.0",
-      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb"
+      "pageVersion": "sha256:657249b6d65e1e639b5b4e3e66451c7b835ddb2ce00387dbd9802aeb91fc67a2",
+      "completedBy": "openwiki/0.9.0",
+      "completedRunId": "88f39748-5106-4d53-9d4b-d49f2991f870",
+      "gitHead": "e55762884d896b250aec7113bfe4dd0fdbed96d3",
+      "sourceFingerprint": "sha256:d263f5dced2222060c24205e2035509415e07ed6e300cd569ccf1daf49af3f8e"
     },
     "/openwiki/architecture/ingestion-pipeline.md": {
       "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
@@ -23,11 +23,11 @@
       "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb"
     },
     "/openwiki/architecture/overview.md": {
-      "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
-      "sourceFingerprint": "sha256:c1cae131e0f9c600983af69aeb4c1798aba9888410c7bdd042cd9b18d461fb48",
-      "pageVersion": "sha256:c4ccbde4f1b39480889a5a5f9bc0f9d1b20b02fe38fee21863f7cba1d1d17d46",
-      "completedBy": "openwiki/0.5.0",
-      "completedRunId": "efcf11f9-ebf6-4945-8be8-020da4cadbdb"
+      "pageVersion": "sha256:dadcfd0c739413119f290031d6bd65378042729c9b07168962422c4a9e032a11",
+      "completedBy": "openwiki/0.9.0",
+      "completedRunId": "88f39748-5106-4d53-9d4b-d49f2991f870",
+      "gitHead": "e55762884d896b250aec7113bfe4dd0fdbed96d3",
+      "sourceFingerprint": "sha256:d263f5dced2222060c24205e2035509415e07ed6e300cd569ccf1daf49af3f8e"
     },
     "/openwiki/deployment/github-actions.md": {
       "gitHead": "8bfd32bfca8992668915928eb708f0b8f248fc41",
